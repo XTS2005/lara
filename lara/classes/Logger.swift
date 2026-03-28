@@ -25,8 +25,8 @@ class Logger: ObservableObject {
     private var panding = ""
     private var ogstdout: Int32 = -1
     private var ogstderr: Int32 = -1
-    private var logFileURL: URL?
-    private var logFileHandle: FileHandle?
+    private var logfileurl: URL?
+    private var logfilehandle: FileHandle?
     private let ignoredLogSubstrings = [
         "Faulty glyph",
         "outline detected - replacing with a space/null glyph",
@@ -84,10 +84,11 @@ class Logger: ObservableObject {
         "Z:",
         "Total Latency:",
         "Timestamp type:",
+        "lara[",
     ]
 
     init() {
-        setupLogFile()
+        setuplogfile()
     }
 
     func log(_ message: String) {
@@ -106,7 +107,7 @@ class Logger: ObservableObject {
             self.lastwasdivider = false
         }
 
-        appendToFile([message])
+        appendtofile([message])
         emit(message)
     }
 
@@ -148,10 +149,10 @@ class Logger: ObservableObject {
             self.lastwasdivider = false
             self.pendingdivider = false
         }
-        if let url = logFileURL {
-            try? logFileHandle?.close()
+        if let url = logfileurl {
+            try? logfilehandle?.close()
             try? "".write(to: url, atomically: true, encoding: .utf8)
-            logFileHandle = try? FileHandle(forWritingTo: url)
+            logfilehandle = try? FileHandle(forWritingTo: url)
         }
     }
 
@@ -183,11 +184,11 @@ class Logger: ObservableObject {
         var lines = text.components(separatedBy: "\n")
         panding = lines.removeLast()
         if !lines.isEmpty {
-            let filtered = lines.filter { !shouldIgnore($0) }
+            let filtered = lines.filter { !shouldignore($0) }
             DispatchQueue.main.async {
                 self.logs.append(contentsOf: filtered)
             }
-            appendToFile(filtered)
+            appendtofile(filtered)
             for line in filtered {
                 emit(line)
             }
@@ -195,7 +196,7 @@ class Logger: ObservableObject {
     }
 
     private func emit(_ message: String) {
-        if shouldIgnore(message) { return }
+        if shouldignore(message) { return }
         guard ogstdout != -1 else { return }
         let line = message + "\n"
         line.withCString { ptr in
@@ -203,12 +204,12 @@ class Logger: ObservableObject {
         }
     }
 
-    private func shouldIgnore(_ message: String) -> Bool {
+    private func shouldignore(_ message: String) -> Bool {
         let trimmed = message.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty {
             return true
         }
-        if isNoiseLine(trimmed) {
+        if isgarbageline(trimmed) {
             return true
         }
         for fragment in ignoredLogSubstrings {
@@ -219,8 +220,7 @@ class Logger: ObservableObject {
         return false
     }
 
-    private func isNoiseLine(_ line: String) -> Bool {
-        // filters tables / separators / brace spam
+    private func isgarbageline(_ line: String) -> Bool {
         let allowed = CharacterSet(charactersIn: "0123456789-+|*.:(){}[]/\\_ \t")
         if line.unicodeScalars.allSatisfy({ allowed.contains($0) }) {
             return true
@@ -231,42 +231,37 @@ class Logger: ObservableObject {
         return false
     }
 
-    private func setupLogFile() {
+    private func setuplogfile() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         let url = docs.appendingPathComponent("lara.log")
-        logFileURL = url
-        if !FileManager.default.fileExists(atPath: url.path) {
-            FileManager.default.createFile(atPath: url.path, contents: nil, attributes: [
-                FileAttributeKey.protectionKey: FileProtectionType.none
-            ])
-        } else {
-            try? FileManager.default.setAttributes([FileAttributeKey.protectionKey: FileProtectionType.none], ofItemAtPath: url.path)
-            if let existing = try? String(contentsOf: url, encoding: .utf8), !existing.isEmpty {
-                let lines = existing.components(separatedBy: "\n").filter {
-                    !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                }
-                if !lines.isEmpty {
-                    self.logs = lines
-                    self.lastwasdivider = true
-                }
-            }
+        logfileurl = url
+        
+        if FileManager.default.fileExists(atPath: url.path) {
+            try? FileManager.default.removeItem(at: url)
         }
-        logFileHandle = try? FileHandle(forWritingTo: url)
-        try? logFileHandle?.seekToEnd()
+        
+        FileManager.default.createFile(atPath: url.path, contents: nil, attributes: [
+            FileAttributeKey.protectionKey: FileProtectionType.none
+        ])
+        
+        logfilehandle = try? FileHandle(forWritingTo: url)
+        try? logfilehandle?.seekToEnd()
+        
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        let separator = "--- session started: \(formatter.string(from: Date())) ---"
-        self.logs.append(separator)
+        let separator = "lara started: \(formatter.string(from: Date()))"
+        self.logs = [separator]
         self.lastwasdivider = true
+        
         if let data = (separator + "\n").data(using: .utf8) {
-            try? logFileHandle?.write(contentsOf: data)
-            try? logFileHandle?.synchronize()
+            try? logfilehandle?.write(contentsOf: data)
+            try? logfilehandle?.synchronize()
         }
     }
 
-    private func appendToFile(_ lines: [String]) {
-        guard let handle = logFileHandle else { return }
-        let filtered = lines.filter { !shouldIgnore($0) }
+    private func appendtofile(_ lines: [String]) {
+        guard let handle = logfilehandle else { return }
+        let filtered = lines.filter { !shouldignore($0) }
         guard !filtered.isEmpty else { return }
         let text = filtered.joined(separator: "\n") + "\n"
         if let data = text.data(using: .utf8) {
