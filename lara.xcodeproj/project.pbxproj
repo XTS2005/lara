@@ -41,6 +41,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				assets/darksword.icon,
+				assets/icon2.icon,
 			);
 			target = CC1C8B382F71DF9C00206982 /* lara */;
 		};
