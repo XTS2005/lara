@@ -51,7 +51,7 @@
 				other/Assets.xcassets/AccentColor.colorset/Contents.json,
 				other/Assets.xcassets/unknown.imageset,
 				other/Assets.xcassets/unknown.imageset/Contents.json,
-				other/Assets.xcassets/unknown.imageset/DefaultIcon-60@3x~iphone.png,
+				"other/Assets.xcassets/unknown.imageset/DefaultIcon-60@3x~iphone.png",
 				"other/Assets.xcassets/unknown.imageset/DefaultIcon-60@3x~iphone 1.png",
 				"other/Assets.xcassets/unknown.imageset/DefaultIcon-60@3x~iphone 2.png",
 			);
