@@ -1,5 +1,6 @@
 # lara
 a beautiful kexploit.
+> star this repo please :P
 
 ## support
 lara will at its absolute best only ever support versions up to iOS 26.0.1/iOS 18.7.1. the exploit was patched after those versions.
