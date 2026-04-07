@@ -186,6 +186,9 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { [weak self] _ in
                 self?.copyItem(item)
             }
+            let infoAction = UIAction(title: "Get Info", image: UIImage(systemName: "info.circle")) { [weak self] _ in
+                self?.showInfoForItem(item)
+            }
             let replaceAction = UIAction(
                 title: "Replace With Clipboard",
                 image: UIImage(systemName: "doc.on.clipboard"),
@@ -196,7 +199,7 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             let deleteAction = UIAction(title: "Delete", image: UIImage(systemName: "trash"), attributes: .destructive) { [weak self] _ in
                 self?.confirmDelete(item)
             }
-            return UIMenu(children: [copyAction, replaceAction, deleteAction])
+            return UIMenu(children: [copyAction, infoAction, replaceAction, deleteAction])
         })
     }
 
@@ -652,6 +655,71 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
         }
+    }
+
+    private func showInfoForItem(_ item: SantanderPath) {
+        let details = fileDetails(for: item.path)
+        let alert = UIAlertController(title: item.lastPathComponent, message: details, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func fileDetails(for path: String) -> String {
+        let fm = FileManager.default
+        var lines: [String] = []
+
+        var isDir = ObjCBool(false)
+        let exists = fm.fileExists(atPath: path, isDirectory: &isDir)
+        lines.append("Exists: \(exists ? "yes" : "no")")
+        if exists {
+            lines.append("Kind: \(isDir.boolValue ? "directory" : "file")")
+        }
+
+        let url = URL(fileURLWithPath: path)
+        let keys: Set<URLResourceKey> = [
+            .contentTypeKey,
+            .fileSizeKey,
+            .creationDateKey,
+            .contentModificationDateKey,
+            .isSymbolicLinkKey
+        ]
+
+        if let values = try? url.resourceValues(forKeys: keys) {
+            if let type = values.contentType {
+                lines.append("UTType: \(type.identifier)")
+            }
+            if let size = values.fileSize {
+                lines.append("Size: \(size) bytes")
+            }
+            if let created = values.creationDate {
+                lines.append("Created: \(created)")
+            }
+            if let modified = values.contentModificationDate {
+                lines.append("Modified: \(modified)")
+            }
+            if let isSym = values.isSymbolicLink {
+                lines.append("Symlink: \(isSym ? "yes" : "no")")
+            }
+        }
+
+        if let attrs = try? fm.attributesOfItem(atPath: path) {
+            if let perms = attrs[.posixPermissions] as? NSNumber {
+                lines.append(String(format: "POSIX perms: %04o", perms.intValue))
+            }
+
+            if let owner = attrs[.ownerAccountName] as? String {
+                lines.append("Owner: \(owner)")
+            }
+            if let group = attrs[.groupOwnerAccountName] as? String {
+                lines.append("Group: \(group)")
+            }
+        }
+
+        lines.append("Readable: \(fm.isReadableFile(atPath: path) ? "yes" : "no")")
+        lines.append("Writable: \(fm.isWritableFile(atPath: path) ? "yes" : "no")")
+        lines.append("Executable: \(fm.isExecutableFile(atPath: path) ? "yes" : "no")")
+
+        return lines.joined(separator: "\n")
     }
 
     private func presentUploadPicker() {
