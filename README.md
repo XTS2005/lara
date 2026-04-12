@@ -44,7 +44,7 @@ currently tested on iOS 17.1.1 - 26.0.1, up to iOS 18.7.1 only on the 18.7 serie
 | **M-series chips** | M1, M2, M3, etc...  | **unsupported** |
 
 > [!CAUTION]
-> if you are on an M-series device or any iOS version higher than 26.0.1, the app will crash on launch. this isn't a bug, this means that the exploit is patched by Apple.
+> if you are on an M-series device or any iOS version higher than 26.0.1, the app will crash on launch. this isn't a bug, lara just doesnt support those devices yet.
 > 
 > **ANY ISSUES THAT INVOLVE LARA NOT WORKING ON UNSUPPORTED VERSIONS WILL BE CLOSED IMMEDIATLEY.**
 
