@@ -365,6 +365,7 @@ struct ContentView: View {
                         }
                     }
                     
+                    #if !DISABLE_REMOTECALL
                     Section {
                         Button("Init RemoteCall") {
                             mgr.logmsg("T")
@@ -390,6 +391,7 @@ struct ContentView: View {
                     } footer: {
                         Text("Broken. Do not create issues or ask for support regarding this feature.")
                     }
+                    #endif
                     
                     Section {
                         if mgr.dsready {

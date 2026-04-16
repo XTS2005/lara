@@ -2,19 +2,24 @@
 set -euo pipefail
 
 BUILD_MACOS=0
+BUILD_ARM64=0
 for arg in "$@"; do
   case "$arg" in
     --macos)
       BUILD_MACOS=1
       ;;
+    --arm64)
+      BUILD_ARM64=1
+      ;;
     -h|--help)
-      echo "Usage: $0 [--macos]"
+      echo "Usage: $0 [--macos] [--arm64]"
       echo "  --macos   Build the Mac Catalyst .app into dist/"
+      echo "  --arm64   Build for arm64 instead of arm64e (no RemoteCall support)"
       exit 0
       ;;
     *)
       echo "Unknown argument: $arg" >&2
-      echo "Usage: $0 [--macos]" >&2
+      echo "Usage: $0 [--macos] [--arm64]" >&2
       exit 2
       ;;
   esac
@@ -41,6 +46,13 @@ fi
 LARA_LDID_SIGN="${LARA_LDID_SIGN:-1}"
 LARA_LDID_ENTITLEMENTS="${LARA_LDID_ENTITLEMENTS:-$PROJECT_DIR/Config/lara.entitlements}"
 
+BUILD_ARCHS="arm64e"
+SWIFT_FLAGS=""
+if [[ "$BUILD_ARM64" == "1" ]]; then
+  BUILD_ARCHS="arm64"
+  SWIFT_FLAGS="SWIFT_ACTIVE_COMPILATION_CONDITIONS=DISABLE_REMOTECALL"
+fi
+
 rm -rf "$DIST_DIR" "$PROJECT_DIR/build"
 
 XCODEBUILD_LOG="$PROJECT_DIR/build/xcodebuild.log"
@@ -64,8 +76,9 @@ run_xcodebuild() {
     ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME="" \
     ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS=NO \
     ENABLE_ON_DEMAND_RESOURCES=NO \
-    ARCHS=arm64e \
-    ONLY_ACTIVE_ARCH=NO
+    ARCHS="$BUILD_ARCHS" \
+    ONLY_ACTIVE_ARCH=NO \
+    $SWIFT_FLAGS
 }
 
 prepare_maccatalyst_linker_path_workaround() {
@@ -147,7 +160,7 @@ fi
 
 rm -rf "$DEST_APP/_CodeSignature" "$DEST_APP/embedded.mobileprovision" || true
 
-# Ensure UIFileSharingEnabled is present (Xcode 26 build system drops this INFOPLIST_KEY_ setting)
+# nsure UIFileSharingEnabled is present (xcode 26 build system drops this INFOPLIST_KEY_ setting)
 plutil -replace UIFileSharingEnabled -bool YES "$DEST_APP/Info.plist"
 
 if [[ "$LARA_LDID_SIGN" == "1" ]]; then

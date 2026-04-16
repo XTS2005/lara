@@ -25,7 +25,9 @@ final class laramgr: ObservableObject {
     @Published var kaccesserror: String?
     @Published var fileopinprogress: Bool = false
     @Published var testresult: String?
+    #if !DISABLE_REMOTECALL
     @Published var remotecallrunning: Bool = false
+    #endif
     
     @Published var vfsready: Bool = false
     @Published var vfsinitlog: String = ""
@@ -453,6 +455,7 @@ final class laramgr: ObservableObject {
         return true
     }
     
+    #if !DISABLE_REMOTECALL
     func rcinit(process: String, migbypass: Bool = false, completion: ((Bool) -> Void)? = nil) {
         guard dsready, !remotecallrunning else {
             completion?(false)
@@ -513,4 +516,5 @@ final class laramgr: ObservableObject {
             padded[4], padded[5], padded[6], padded[7]
         )
     }
+    #endif
 }
