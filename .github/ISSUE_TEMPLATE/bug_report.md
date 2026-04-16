@@ -3,7 +3,7 @@ name: Bug report
 about: Create a report to help us improve Lara
 title: "[BUG] Insert Title Here"
 labels: bug
-assignees: ''
+assignees: Pro42good
 
 ---
 

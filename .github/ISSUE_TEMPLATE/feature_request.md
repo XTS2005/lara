@@ -3,7 +3,7 @@ name: Feature request
 about: Suggest an idea for this project
 title: "[Feature] Insert Title Here"
 labels: enhancement
-assignees: ''
+assignees: Pro42good
 
 ---
 
