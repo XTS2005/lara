@@ -25,7 +25,7 @@ struct SettingsView: View {
     var appname: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String
         ?? Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String
-        ?? "Unknown App"
+        ?? "未知应用"
     }
     var appversion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
@@ -56,7 +56,7 @@ struct SettingsView: View {
                             Text(appname)
                                 .font(.headline)
                             
-                            Text("Version \(appversion)")
+                            Text("版本 \(appversion)")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -74,24 +74,24 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.segmented)
                 } header: {
-                    Text("Method")
+                    Text("方法")
                 } footer: {
                     if selectedmethod == .vfs {
-                        Text("VFS only.")
+                        Text("仅 VFS。")
                     } else if selectedmethod == .sbx {
-                        Text("SBX only.")
+                        Text("仅 SBX。")
                     } else {
-                        Text("Hybrid: SBX for read, VFS for write.\nBest method ever. (Thanks Huy)")
+                        Text("混合：SBX 用于读取，VFS 用于写入。\n有史以来最好的方法。(感谢 Huy)")
                     }
                 }
                 
                 Section {
-                    Toggle("Disable log dividers", isOn: $loggernobullshit)
+                    Toggle("禁用日志分隔符", isOn: $loggernobullshit)
                         .onChange(of: loggernobullshit) { _ in
                             globallogger.clear()
                         }
                     
-                    Toggle("Keep Alive", isOn: $iskeepalive)
+                    Toggle("保持后台活跃", isOn: $iskeepalive)
                         .onChange(of: iskeepalive) { _ in
                             if iskeepalive {
                                 if !kaenabled { toggleka() }
@@ -100,27 +100,27 @@ struct SettingsView: View {
                             }
                         }
                     
-                    Toggle("Show File Manager in Tabs", isOn: $showfmintabs)
+                    Toggle("在标签页中显示文件管理器", isOn: $showfmintabs)
 
                 } header: {
-                    Text("Lara Settings")
+                    Text("Lara 设置")
                 } footer: {
-                    Text("Keep Alive keeps the app running in the background when it is minimized (not closed from app switcher).")
+                    Text(""保持后台活跃"可使应用在最小化（而非从应用切换器中关闭）时继续在后台运行。")
                 }
 
                 #if !DISABLE_REMOTECALL
                 Section {
-                    Toggle("Allow >10 dock icons", isOn: $rcdockunlimited)
+                    Toggle("允许超过10个Dock栏图标", isOn: $rcdockunlimited)
                 } header: {
                     Text("RemoteCall")
                 } footer: {
-                    Text("Enables larger dock column counts in RemoteCall tweaks.")
+                    Text("在 RemoteCall 调整中启用更大的 Dock 栏列数。")
                 }
                 #endif
 
                 Section {
                     if !hasoffsets {
-                        Button("Download Kernelcache") {
+                        Button("下载内核缓存") {
                             guard !downloadingkernelcache else { return }
                             downloadingkernelcache = true
                             DispatchQueue.global(qos: .userInitiated).async {
@@ -133,40 +133,40 @@ struct SettingsView: View {
                         }
                         .disabled(downloadingkernelcache)
                         
-                        Button("Fetch Kernelcache") {
+                        Button("获取内核缓存") {
                             mgr.run()
                         }
                         
-                        Button("Import Kernelcache from Files") {
+                        Button("从文件导入内核缓存") {
                             guard !importingkernelcache else { return }
                             showingKernelcacheImporter = true
                         }
                         .disabled(importingkernelcache)
 
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("How to obtain a kernelcache (macOS)")
+                            Text("如何获取内核缓存 (macOS)")
                                 .font(.footnote.weight(.semibold))
                                 .foregroundColor(.primary)
 
-                            Text("1. Download the IPSW tool for your device.")
+                            Text("1. 为你的设备下载 IPSW 工具。")
                             Link("https://github.com/blacktop/ipsw/releases",
                                  destination: URL(string: "https://github.com/blacktop/ipsw/releases")!)
 
-                            Text("2. Extract the archive.")
-                            Text("3. Open Terminal.")
-                            Text("4. Navigate to the extracted folder:")
+                            Text("2. 解压归档文件。")
+                            Text("3. 打开终端。")
+                            Text("4. 导航至解压后的文件夹：")
                             Text("cd /path/to/ipsw_3.1.671_something_something/")
                                 .font(.system(.caption2, design: .monospaced))
                                 .textSelection(.enabled)
 
-                            Text("5. Extract the kernel:")
-                            Text("./ipsw extract --kernel [drag your ipsw here]")
+                            Text("5. 提取内核：")
+                            Text("./ipsw extract --kernel [将你的 ipsw 文件拖到此处]")
                                 .font(.system(.caption2, design: .monospaced))
                                 .textSelection(.enabled)
 
-                            Text("6. Get the kernelcache file.")
-                            Text("7. Transfer the kernelcache to your iCloud or iPhone.")
-                            Text("8. Tap the button above and select the kernelcache, for example kernelcache.release.iPhone14,3.")
+                            Text("6. 获取 kernelcache 文件。")
+                            Text("7. 将 kernelcache 传输到你的 iCloud 或 iPhone。")
+                            Text("8. 点击上方按钮并选择 kernelcache 文件，例如 kernelcache.release.iPhone14,3。")
                         }
                         .font(.caption)
                         .foregroundColor(.secondary)
@@ -176,13 +176,13 @@ struct SettingsView: View {
                     Button {
                         showresetalert = true
                     } label: {
-                        Text("Delete Kernelcache Data")
+                        Text("删除内核缓存数据")
                             .foregroundColor(.red)
                     }
                 } header: {
-                    Text("Kernelcache")
+                    Text("内核缓存")
                 } footer: {
-                    Text("Deleting and redownloading Kernelcache can fix a lot of issues. Try this before making a github Issue.")
+                    Text("删除并重新下载内核缓存可以解决许多问题。在提交 GitHub Issue 之前请先尝试此操作。")
                 }
                 
                 Section {
@@ -201,7 +201,7 @@ struct SettingsView: View {
                             Text("roooot")
                                 .font(.headline)
                             
-                            Text("Main Developer")
+                            Text("主要开发者")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -230,7 +230,7 @@ struct SettingsView: View {
                             Text("wh1te4ever")
                                 .font(.headline)
                             
-                            Text("Made darksword-kexploit-fun.")
+                            Text("让 darksword-kexploit 变得有趣。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -259,7 +259,7 @@ struct SettingsView: View {
                             Text("AppInstaller iOS")
                                 .font(.headline)
                             
-                            Text("Helped me with offsets and lots of other stuff. This project wouldnt have been possible without him!")
+                            Text("在偏移量和许多其他方面帮助了我。没有他，这个项目不可能完成！")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -288,7 +288,7 @@ struct SettingsView: View {
                             Text("jailbreak.party")
                                 .font(.headline)
                             
-                            Text("All of the DirtyZero tweaks and emotional support.")
+                            Text("所有的 DirtyZero 调整和精神支持。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -317,7 +317,7 @@ struct SettingsView: View {
                             Text("neon")
                                 .font(.headline)
                             
-                            Text("Made the respring script.")
+                            Text("制作了 respring 脚本。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -331,10 +331,10 @@ struct SettingsView: View {
                         }
                     }
                 } header: {
-                    Text("Credits")
+                    Text("致谢")
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("设置")
         }
         .fileImporter(isPresented: $showingKernelcacheImporter,
                       allowedContentTypes: [.data],
@@ -361,7 +361,7 @@ struct SettingsView: View {
                             try fm.copyItem(at: url, to: dest)
                             ok = dlkerncache()
                         } catch {
-                            print("failed to import kernelcache: \(error)")
+                            print("导入内核缓存失败：\(error)")
                             ok = false
                         }
                     }
@@ -374,14 +374,14 @@ struct SettingsView: View {
                 break
             }
         }
-        .alert("Clear Kernelcache Data?", isPresented: $showresetalert) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
+        .alert("清除内核缓存数据？", isPresented: $showresetalert) {
+            Button("取消", role: .cancel) {}
+            Button("删除", role: .destructive) {
                 clearkerncachedata()
                 //hasoffsets = haskernproc()
             }
         } message: {
-            Text("This will delete the downloaded kernelcache and remove saved offsets.")
+            Text("这将删除已下载的内核缓存并移除保存的偏移量。")
         }
     }
 }
@@ -389,5 +389,5 @@ struct SettingsView: View {
 enum method: String, CaseIterable {
     case vfs = "VFS"
     case sbx = "SBX"
-    case hybrid = "Hybrid"
+    case hybrid = "混合"
 }
