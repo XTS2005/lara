@@ -19,10 +19,10 @@ struct ContentView: View {
         NavigationStack {
             List {
                 if !hasoffsets {
-                    Section("Setup") {
-                        Text("Kernelcache offsets are missing. Download them in Settings.")
+                    Section("设置") {
+                        Text("内核缓存偏移量缺失。请在设置中下载。")
                             .foregroundColor(.secondary)
-                        Button("Open Settings") {
+                        Button("打开设置") {
                             showsettings = true
                         }
                     }
@@ -37,27 +37,27 @@ struct ContentView: View {
                                     ProgressView(value: mgr.dsprogress)
                                         .progressViewStyle(.circular)
                                         .frame(width: 18, height: 18)
-                                    Text("Running...")
+                                    Text("运行中...")
                                     Spacer()
                                     Text("\(Int(mgr.dsprogress * 100))%")
                                 }
                             } else {
                                 if mgr.dsready {
                                     HStack {
-                                        Text("Ran Exploit")
+                                        Text("漏洞已运行")
                                         Spacer()
                                         Image(systemName: "checkmark.circle")
                                             .foregroundColor(.green)
                                     }
                                 } else if mgr.dsattempted && mgr.dsfailed {
                                     HStack {
-                                        Text("Exploit Failed")
+                                        Text("漏洞利用失败")
                                         Spacer()
                                         Image(systemName: "xmark.circle")
                                             .foregroundColor(.red)
                                     }
                                 } else {
-                                    Text("Run Exploit")
+                                    Text("运行漏洞")
                                 }
                             }
                         }
@@ -82,14 +82,14 @@ struct ContentView: View {
                             }
                         }
                     } header: {
-                        Text("Kernel Read Write")
+                        Text("内核读写")
                     } footer: {
                         if g_isunsupported {
-                            Text("Your device/installation method may not be supported.")
+                            Text("你的设备或安装方式可能不受支持。")
                         }
                         
                         if isdebugged() {
-                            Text("Not available while debugger is attached.")
+                            Text("连接调试器时不可用。")
                         }
                     }
                     .disabled(isdebugged())
@@ -104,24 +104,24 @@ struct ContentView: View {
                                         ProgressView(value: mgr.vfsprogress)
                                             .progressViewStyle(.circular)
                                             .frame(width: 18, height: 18)
-                                        Text("Initialising VFS...")
+                                        Text("正在初始化 VFS...")
                                         Spacer()
                                         Text("\(Int(mgr.vfsprogress * 100))%")
                                     }
                                 } else if !mgr.vfsready {
                                     if mgr.vfsattempted && mgr.vfsfailed {
                                         HStack {
-                                            Text("VFS Init Failed")
+                                            Text("VFS 初始化失败")
                                             Spacer()
                                             Image(systemName: "xmark.circle")
                                                 .foregroundColor(.red)
                                         }
                                     } else {
-                                        Text("Initialise VFS")
+                                        Text("初始化 VFS")
                                     }
                                 } else {
                                     HStack {
-                                        Text("Initialised VFS")
+                                        Text("VFS 已初始化")
                                         Spacer()
                                         Image(systemName: "checkmark.circle")
                                             .foregroundColor(.green)
@@ -131,31 +131,31 @@ struct ContentView: View {
                             .disabled(!mgr.dsready || mgr.vfsready || mgr.vfsrunning)
 
                             if mgr.vfsready {
-                                NavigationLink("Tweaks") {
+                                NavigationLink("调整") {
                                     List {
-                                        NavigationLink("Font Overwrite") {
+                                        NavigationLink("字体覆盖") {
                                             FontPicker(mgr: mgr)
                                         }
 
-                                        NavigationLink("Card Overwrite") {
+                                        NavigationLink("卡片覆盖") {
                                             CardView()
                                         }
 
-                                        NavigationLink("Custom Overwrite") {
+                                        NavigationLink("自定义覆盖") {
                                             CustomView(mgr: mgr)
                                         }
 
-                                        NavigationLink("DirtyZero (Broken)") {
+                                        NavigationLink("DirtyZero (已损坏)") {
                                             ZeroView(mgr: mgr)
                                         }
 
                                         if !showfmintabs {
-                                            NavigationLink("File Manager") {
+                                            NavigationLink("文件管理器") {
                                                 SantanderView(startPath: "/")
                                             }
                                         }
                                     }
-                                    .navigationTitle(Text("Tweaks"))
+                                    .navigationTitle(Text("调整"))
                                 }
                             }
                         } else if selectedmethod == .sbx {
@@ -168,22 +168,22 @@ struct ContentView: View {
                                         ProgressView()
                                             .progressViewStyle(.circular)
                                             .frame(width: 18, height: 18)
-                                        Text("Escaping Sandbox...")
+                                        Text("正在沙盒逃逸...")
                                     }
                                 } else if !mgr.sbxready {
                                     if mgr.sbxattempted && mgr.sbxfailed {
                                         HStack {
-                                            Text("Sandbox Escape Failed")
+                                            Text("沙盒逃逸失败")
                                             Spacer()
                                             Image(systemName: "xmark.circle")
                                                 .foregroundColor(.red)
                                         }
                                     } else {
-                                        Text("Escape Sandbox")
+                                        Text("逃离沙盒")
                                     }
                                 } else {
                                     HStack {
-                                        Text("Sandbox Escaped")
+                                        Text("已沙盒逃逸")
                                         Spacer()
                                         Image(systemName: "checkmark.circle")
                                             .foregroundColor(.green)
@@ -193,19 +193,19 @@ struct ContentView: View {
                             .disabled(!mgr.dsready || mgr.sbxready || mgr.sbxrunning)
 
                             if mgr.sbxready {
-                                NavigationLink("Tweaks") {
+                                NavigationLink("调整") {
                                     List {
                                         if !showfmintabs {
-                                            NavigationLink("File Manager") {
+                                            NavigationLink("文件管理器") {
                                                 SantanderView(startPath: "/")
                                             }
                                         }
 
-                                        NavigationLink("Card Overwrite") {
+                                        NavigationLink("卡片覆盖") {
                                             CardView()
                                         }
 
-                                        NavigationLink("3 App Bypass") {
+                                        NavigationLink("3 应用绕过") {
                                             AppsView(mgr: mgr)
                                         }
 
@@ -213,7 +213,7 @@ struct ContentView: View {
                                             VarCleanView()
                                         }
 
-                                        NavigationLink("Unblacklist (Broken?)") {
+                                        NavigationLink("解除黑名单 (已损坏?)") {
                                             WhitelistView()
                                         }
 
@@ -222,12 +222,12 @@ struct ContentView: View {
                                                 EditorView()
                                             }
 
-                                            NavigationLink("Passcode Theme") {
+                                            NavigationLink("密码主题") {
                                                 PasscodeView(mgr: mgr)
                                             }
                                         }
                                     }
-                                    .navigationTitle(Text("Tweaks"))
+                                    .navigationTitle(Text("调整"))
                                 }
                             }
                         } else {
@@ -240,22 +240,22 @@ struct ContentView: View {
                                             ProgressView()
                                                 .progressViewStyle(.circular)
                                                 .frame(width: 18, height: 18)
-                                            Text("Escaping Sandbox...")
+                                            Text("正在沙盒逃逸...")
                                         }
                                     } else if !mgr.sbxready {
                                         if mgr.sbxattempted && mgr.sbxfailed {
                                             HStack {
-                                                Text("Sandbox Escape Failed")
+                                                Text("沙盒逃逸失败")
                                                 Spacer()
                                                 Image(systemName: "xmark.circle")
                                                     .foregroundColor(.red)
                                             }
                                         } else {
-                                            Text("Escape Sandbox")
+                                            Text("逃离沙盒")
                                         }
                                     } else {
                                         HStack {
-                                            Text("Sandbox Escaped")
+                                            Text("已沙盒逃逸")
                                             Spacer()
                                             Image(systemName: "checkmark.circle")
                                                 .foregroundColor(.green)
@@ -272,24 +272,24 @@ struct ContentView: View {
                                             ProgressView(value: mgr.vfsprogress)
                                                 .progressViewStyle(.circular)
                                                 .frame(width: 18, height: 18)
-                                            Text("Initialising VFS...")
+                                            Text("正在初始化 VFS...")
                                             Spacer()
                                             Text("\(Int(mgr.vfsprogress * 100))%")
                                         }
                                     } else if !mgr.vfsready {
                                         if mgr.vfsattempted && mgr.vfsfailed {
                                             HStack {
-                                                Text("VFS Init Failed")
+                                                Text("VFS 初始化失败")
                                                 Spacer()
                                                 Image(systemName: "xmark.circle")
                                                     .foregroundColor(.red)
                                             }
                                         } else {
-                                            Text("Initialise VFS")
+                                            Text("初始化 VFS")
                                         }
                                     } else {
                                         HStack {
-                                            Text("Initialised Hybrid")
+                                            Text("混合模式已初始化")
                                             Spacer()
                                             Image(systemName: "checkmark.circle")
                                                 .foregroundColor(.green)
@@ -300,23 +300,23 @@ struct ContentView: View {
                             }
 
                             if mgr.vfsready && mgr.sbxready {
-                                NavigationLink("Tweaks") {
+                                NavigationLink("调整") {
                                     List {
                                         if !showfmintabs {
-                                            NavigationLink("File Manager") {
+                                            NavigationLink("文件管理器") {
                                                 SantanderView(startPath: "/")
                                             }
                                         }
 
-                                        NavigationLink("Font Overwrite") {
+                                        NavigationLink("字体覆盖") {
                                             FontPicker(mgr: mgr)
                                         }
 
-                                        NavigationLink("Card Overwrite") {
+                                        NavigationLink("卡片覆盖") {
                                             CardView()
                                         }
 
-                                        NavigationLink("Custom Overwrite") {
+                                        NavigationLink("自定义覆盖") {
                                             CustomView(mgr: mgr)
                                         }
 
@@ -324,7 +324,7 @@ struct ContentView: View {
                                             EditorView()
                                         }
 
-                                        NavigationLink("3 App Bypass") {
+                                        NavigationLink("3 应用绕过") {
                                             AppsView(mgr: mgr)
                                         }
 
@@ -332,7 +332,7 @@ struct ContentView: View {
                                             VarCleanView()
                                         }
 
-                                        NavigationLink("Whitelist") {
+                                        NavigationLink("白名单") {
                                             WhitelistView()
                                         }
 
@@ -341,28 +341,28 @@ struct ContentView: View {
                                         }
 
                                         if 1 == 2 {
-                                            NavigationLink("Control Center") {
+                                            NavigationLink("控制中心") {
                                                 CCView()
                                             }
 
-                                            NavigationLink("Passcode Theme") {
+                                            NavigationLink("密码主题") {
                                                 PasscodeView(mgr: mgr)
                                             }
 
-                                            NavigationLink("3 App Bypass") {
+                                            NavigationLink("3 应用绕过") {
                                                 AppsView(mgr: mgr)
                                             }
                                         }
                                     }
-                                    .navigationTitle(Text("Tweaks"))
+                                    .navigationTitle(Text("调整"))
                                 }
                             }
                         }
                     } header: {
-                        Text(selectedmethod == .vfs ? "Virtual File System" : (selectedmethod == .sbx ? "Sandbox Escape" : "Hybrid (SBX + VFS)"))
+                        Text(selectedmethod == .vfs ? "VFS" : (selectedmethod == .sbx ? "SBX" : "混合模式 (SBX + VFS)"))
                     } footer: {
                         if selectedmethod == .sbx {
-                            Text("Font Overwrite is only available in VFS or Hybrid mode. (Settings -> Method -> VFS/Hybrid)")
+                            Text("字体覆盖仅在 VFS 或混合模式下可用。(设置 -> 方法 -> VFS/混合)")
                         }
                     }
 
@@ -381,12 +381,12 @@ struct ContentView: View {
                             }
                         } label: {
                             if mgr.rcrunning {
-                                Text("Initialising RemoteCall...")
+                                Text("正在初始化 RemoteCall...")
                             } else if !mgr.rcready {
-                                Text("Initialise RemoteCall")
+                                Text("初始化 RemoteCall")
                             } else {
                                 HStack {
-                                    Text("Initialised RemoteCall")
+                                    Text("RemoteCall 已初始化")
                                     Spacer()
                                     Image(systemName: "checkmark.circle")
                                         .foregroundColor(.green)
@@ -396,11 +396,11 @@ struct ContentView: View {
                         .disabled(!mgr.dsready || mgr.rcready)
 
                         if mgr.rcready {
-                            NavigationLink("Tweaks") {
+                            NavigationLink("调整") {
                                 RemoteView(mgr: mgr)
                             }
 
-                            Button("Destroy RemoteCall") {
+                            Button("强制终止 RemoteCall") {
                                 mgr.rcdestroy()
                             }
                         }
@@ -408,30 +408,30 @@ struct ContentView: View {
                         Text("RemoteCall")
                     } footer: {
                         if isdebugged() {
-                            Text("Not available when a debugger is attached.")
+                            Text("连接调试器时不可用。")
                         }
-                        Text("RemoteCall is still in development and may not work properly 100% of the time.")
+                        Text("RemoteCall 仍在开发中，可能无法始终正常工作。")
                     }
                     .disabled(isdebugged() || mgr.rcrunning)
                     #endif
 
                     Section {
                         if mgr.dsready {
-                            NavigationLink("Tools") {
+                            NavigationLink("工具") {
                                 ToolsView()
                             }
                         }
 
-                        Button("Respring") {
+                        Button("重启桌面") {
                             mgr.respring()
                         }
 
-                        Button("Panic!") {
+                        Button("内核崩溃！") {
                             mgr.panic()
                         }
                         .disabled(!mgr.dsready)
                     } header: {
-                        Text("Other")
+                        Text("其他")
                     }
                 }
 
