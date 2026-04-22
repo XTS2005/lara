@@ -176,7 +176,11 @@ struct JitView: View {
 	        let runEnable: () -> Void = {
 	            DispatchQueue.global(qos: .userInitiated).async {
 	                let err: Int32 = bundleID.withCString { cStr in
-                        enable_jit(mgr.sbProc, cStr)
+                        if let sbProc = mgr.sbProc {
+    						enable_jit(sbProc, cStr)
+						} else {
+    						globallogger.log("(jit) error enabling for \(bundleID)!")
+						}
 	                }
 	                DispatchQueue.main.async {
 	                    if err == 0 {
