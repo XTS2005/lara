@@ -142,26 +142,44 @@ struct ContentView: View {
                             if mgr.vfsready {
                                 NavigationLink("Tweaks") {
                                     List {
-                                        NavigationLink("Font Overwrite") {
-                                            FontPicker(mgr: mgr)
-                                        }
-
-                                        NavigationLink("Card Overwrite") {
-                                            CardView()
-                                        }
-
-                                        NavigationLink("Custom Overwrite") {
-                                            CustomView(mgr: mgr)
-                                        }
-
-                                        NavigationLink("DirtyZero (Broken)") {
-                                            ZeroView(mgr: mgr)
-                                        }
-
-                                        if !showfmintabs {
-                                            NavigationLink("File Manager") {
-                                                SantanderView(startPath: "/")
+                                        Section {
+                                            NavigationLink {
+                                                FontPicker(mgr: mgr)
+                                            } label: {
+                                                Label("Font Overwrite", systemImage: "textformat.alt")
                                             }
+
+                                            NavigationLink {
+                                                CardView()
+                                            } label: {
+                                                Label("Card Overwrite", systemImage: "creditcard")
+                                            }
+
+                                            NavigationLink {
+                                                ZeroView(mgr: mgr)
+                                            } label: {
+                                                Label("DirtyZero", systemImage: "doc")
+                                            }
+                                        } header: {
+                                            Text("UI Tweaks")
+                                        }
+
+                                        Section {
+                                            if !showfmintabs {
+                                                NavigationLink {
+                                                    SantanderView(startPath: "/")
+                                                } label: {
+                                                    Label("File Manager", systemImage: "folder")
+                                                }
+                                            }
+                                            
+                                            NavigationLink {
+                                                CustomView(mgr: mgr)
+                                            } label: {
+                                                Label("Custom Overwrite", systemImage: "pencil")
+                                            }
+                                        } header: {
+                                            Text("Other")
                                         }
                                     }
                                     .navigationTitle(Text("Tweaks"))
@@ -204,35 +222,60 @@ struct ContentView: View {
                             if mgr.sbxready {
                                 NavigationLink("Tweaks") {
                                     List {
-                                        if !showfmintabs {
-                                            NavigationLink("File Manager") {
-                                                SantanderView(startPath: "/")
+                                        Section {
+                                            NavigationLink {
+                                                CardView()
+                                            } label: {
+                                                Label("Card Overwrite", systemImage: "creditcard")
                                             }
+                                        } header: {
+                                            Text("UI Tweaks")
                                         }
 
-                                        NavigationLink("Card Overwrite") {
-                                            CardView()
+                                        Section {
+                                            NavigationLink {
+                                                AppsView(mgr: mgr)
+                                            } label: {
+                                                Label("3 App Bypass", systemImage: "lock.open.fill")
+                                            }
+
+                                            NavigationLink {
+                                                WhitelistView()
+                                            } label: {
+                                                Label("Unblacklist (Broken?)", systemImage: "checkmark.seal")
+                                            }
+                                        } header: {
+                                            Text("App Management")
                                         }
 
-                                        NavigationLink("3 App Bypass") {
-                                            AppsView(mgr: mgr)
-                                        }
+                                        Section {
+                                            if !showfmintabs {
+                                                NavigationLink {
+                                                    SantanderView(startPath: "/")
+                                                } label: {
+                                                    Label("File Manager", systemImage: "folder")
+                                                }
+                                            }
 
-                                        NavigationLink("VarClean") {
-                                            VarCleanView()
-                                        }
-
-                                        NavigationLink("Unblacklist (Broken?)") {
-                                            WhitelistView()
+                                            NavigationLink {
+                                                VarCleanView()
+                                            } label: {
+                                                Label("VarClean", systemImage: "sparkles")
+                                            }
+                                        } header: {
+                                            Text("Other")
                                         }
 
                                         if 1 == 2 {
-                                            NavigationLink("MobileGestalt") {
+                                            NavigationLink {
                                                 EditorView()
+                                            } label: {
+                                                Label("MobileGestalt", systemImage: "gear")
                                             }
-
-                                            NavigationLink("Passcode Theme") {
+                                            NavigationLink {
                                                 PasscodeView(mgr: mgr)
+                                            } label: {
+                                                Label("Passcode Theme", systemImage: "1.circle")
                                             }
                                         }
                                     }
@@ -311,46 +354,76 @@ struct ContentView: View {
                             if mgr.vfsready && mgr.sbxready {
                                 NavigationLink("Tweaks") {
                                     List {
-                                        if !showfmintabs {
-                                            NavigationLink("File Manager") {
-                                                SantanderView(startPath: "/")
+                                        Section {
+                                            NavigationLink {
+                                                FontPicker(mgr: mgr)
+                                            } label: {
+                                                Label("Font Overwrite", systemImage: "textformat.alt")
                                             }
-                                        }
 
-                                        NavigationLink("Font Overwrite") {
-                                            FontPicker(mgr: mgr)
-                                        }
+                                            NavigationLink {
+                                                CardView()
+                                            } label: {
+                                                Label("Card Overwrite", systemImage: "creditcard")
+                                            }
 
-                                        NavigationLink("Card Overwrite") {
-                                            CardView()
+                                            NavigationLink {
+                                                ZeroView(mgr: mgr)
+                                            } label: {
+                                                Label("DirtyZero", systemImage: "doc")
+                                            }
+                                            
+                                            NavigationLink {
+                                                DarkBoardView()
+                                            } label: {
+                                                Label("DarkBoard", systemImage: "app.badge")
+                                            }
+                                        } header: {
+                                            Text("UI tweaks")
                                         }
+                                        Section {
+                                            NavigationLink {
+                                                AppsView(mgr: mgr)
+                                            } label: {
+                                                Label("3 App Bypass", systemImage: "lock.open.fill")
+                                            }
 
-                                        NavigationLink("Custom Overwrite") {
-                                            CustomView(mgr: mgr)
+                                            NavigationLink {
+                                                WhitelistView()
+                                            } label: {
+                                                Label("Unblacklist (Broken?)", systemImage: "checkmark.seal")
+                                            }
+                                        } header: {
+                                            Text("App Management")
                                         }
+                                        Section {
+                                            if !showfmintabs {
+                                                NavigationLink {
+                                                    SantanderView(startPath: "/")
+                                                } label: {
+                                                    Label("File Manager", systemImage: "folder")
+                                                }
+                                            }
 
-                                        NavigationLink("MobileGestalt") {
-                                            EditorView()
-                                        }
+                                            NavigationLink {
+                                                CustomView(mgr: mgr)
+                                            } label: {
+                                                Label("Custom Overwrite", systemImage: "pencil")
+                                            }
 
-                                        NavigationLink("3 App Bypass") {
-                                            AppsView(mgr: mgr)
-                                        }
+                                            NavigationLink {
+                                                EditorView()
+                                            } label: {
+                                                Label("MobileGestalt", systemImage: "gear")
+                                            }
 
-                                        NavigationLink("VarClean") {
-                                            VarCleanView()
-                                        }
-
-                                        NavigationLink("Whitelist") {
-                                            WhitelistView()
-                                        }
-
-                                        NavigationLink("DirtyZero") {
-                                            ZeroView(mgr: mgr)
-                                        }
-                                        
-                                        NavigationLink("DarkBoard") {
-                                            DarkBoardView()
+                                            NavigationLink {
+                                                VarCleanView()
+                                            } label: {
+                                                Label("VarClean", systemImage: "sparkles")
+                                            }
+                                        } header: {
+                                            Text("Other")
                                         }
 
                                         if 1 == 2 {
@@ -360,10 +433,6 @@ struct ContentView: View {
 
                                             NavigationLink("Passcode Theme") {
                                                 PasscodeView(mgr: mgr)
-                                            }
-
-                                            NavigationLink("3 App Bypass") {
-                                                AppsView(mgr: mgr)
                                             }
                                         }
                                     }
