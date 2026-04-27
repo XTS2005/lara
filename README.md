@@ -20,7 +20,7 @@
   <a href="https://github.com/rooootdev/lara/releases">
     <img src="https://img.shields.io/github/v/release/rooootdev/lara" alt="Release">
   </a>
-   <a href="https://github.com/rooootdev/lara/actions">
+  <a href="https://github.com/rooootdev/lara/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/rooootdev/lara/build.yml?branch=main&style=flat&logo=github" alt="GitHub Actions">
   </a>
 </p>
@@ -157,7 +157,7 @@ if things get weird later, **Delete Kernelcache Data** in Settings wipes the cac
 - opa334 for the kernel exploit poc, ChOma and XPF
 - AppInstaller iOS for help with offsets
 - AlfieCG for libgrabkernel2
-- Everyone who contributed! (visible <a href="https://github.com/rooootdev/lara/graphs/contributors">Here</a> )
+- Everyone who contributed! (Visible <a href="https://github.com/rooootdev/lara/graphs/contributors">Here</a>)
 
 <br>
 <div align="center">a beautiful kexploit ♥️</div>
