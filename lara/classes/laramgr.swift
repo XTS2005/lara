@@ -447,7 +447,7 @@ final class laramgr: ObservableObject {
     }
 
     // inspired by nugget from leminlimez
-    func PPHelper() {
+    func PPHelper() -> Bool {
         let fm = FileManager.default
         let dataFolder = "/private/var/mobile/Containers/Data/Application"
         var bundleIDs = ["com.leemin.Pocket-Poster", "com.apple.PosterBoard"]
@@ -464,16 +464,18 @@ final class laramgr: ObservableObject {
                 }
             }
         }
+
         if let PPHash = hashes["com.leemin.Pocket-Poster"] {
             hashes["com.leemin.Pocket-Poster"] = nil
             for bundleID in hashes.keys {
-                let fileName = "Nugget" + key.replace("com.apple.", "") + "Hash"
+                let fileName = "Nugget" + bundleID.replacingOccurrences(of: "com.apple.", with: "") + "Hash"
                 let content = hashes[bundleID]!
                 let filePath = dataFolder + "/" + PPHash + "/Documents/" + fileName
-                let fileURL = URL(string: path)
+                let fileURL = URL(string: filePath)
                 content.write(to: fileURL, atomically: true, encoding: .utf8)
                 logmsg("Wrote hash \(content) to \(filePath)")
             }
+            return true
         } else {
             logmsg("Please install Pocket Poster before using Pocket Poster Helper")
             return false

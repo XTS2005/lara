@@ -32,6 +32,7 @@ struct ToolsView: View {
     @State private var issuepath: String = "/"
     @State private var uid: uid_t = getuid()
     @State private var pid: pid_t = getpid()
+    @State private var status: String?
     
     var body: some View {
         List {
@@ -143,7 +144,11 @@ struct ToolsView: View {
 
             Section {
                 Button {
-                    mgr.PPHelper()
+                    if mgr.PPHelper() {
+                        status = "Succeeded. Reopen Pocket Poster."
+                    } else {
+                        status = "Failed. Check logs."
+                    }
                 } label: {
                     Text("Pocket Poster Helper")
                 }
@@ -229,6 +234,11 @@ struct ToolsView: View {
             }
         }
         .navigationTitle("Tools")
+        .alert("Status", isPresented: .constant(status != nil)) {
+                Button("OK") { status = nil }
+            } message: {
+                Text(status ?? "")
+            }
         .onAppear {
             if mgr.dsready {
                 getaslrstate()
