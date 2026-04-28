@@ -38,20 +38,20 @@ struct ToolsView: View {
         List {
             if !mgr.dsready {
                 Section {
-                    Text("Kernel R/W is not ready. Run the exploit first.")
+                    Text("内核读写未就绪。请先运行漏洞。")
                         .foregroundColor(.secondary)
                 } header: {
-                    Text("Status")
+                    Text("状态")
                 }
             }
 
             Section {
                 HStack {
-                    Text("ASLR:")
+                    Text("ASLR：")
                     
                     Spacer()
                     
-                    Text(isaslr ? "enabled" : "disabled")
+                    Text(isaslr ? "已启用" : "已禁用")
                         .foregroundColor(isaslr ? Color.red : Color.green)
                         .monospaced()
                     
@@ -66,21 +66,21 @@ struct ToolsView: View {
                     toggleaslr()
                     isaslr = aslrstate
                 } label: {
-                    Text("Toggle ASLR")
+                    Text("切换 ASLR")
                 }
             } header: {
                 Text("ASLR")
             } footer: {
-                Text("Address Space Layout Randomization. Probably not useful for you.")
+                Text("ASLR（地址空间随机化）。这功能你大概率用不上。")
             }
             
             Section {
-                Button("Respring") {
+                Button("注销") {
                     mgr.respring()
                 }
                 
                 HStack {
-                    Text("ourproc: ")
+                    Text("ourproc：")
                     Spacer()
                     Text(mgr.dsready ? String(format: "0x%llx", ds_get_our_proc()) : "N/A")
                         .foregroundColor(.secondary)
@@ -88,7 +88,7 @@ struct ToolsView: View {
                 }
                 
                 HStack {
-                    Text("ourtask: ")
+                    Text("ourtask：")
                     Spacer()
                     Text(mgr.dsready ? String(format: "0x%llx", ds_get_our_task()) : "N/A")
                         .foregroundColor(.secondary)
@@ -96,7 +96,7 @@ struct ToolsView: View {
                 }
                 
                 HStack {
-                    Text("UID:")
+                    Text("UID：")
 
                     Spacer()
 
@@ -113,7 +113,7 @@ struct ToolsView: View {
                 }
 
                 HStack {
-                    Text("PID:")
+                    Text("PID：")
                     Spacer()
 
                     Text("\(pid)")
@@ -128,7 +128,7 @@ struct ToolsView: View {
                     }
                 }
             } header: {
-                Text("Process")
+                Text("进程")
             }
 
             Section {
@@ -139,30 +139,30 @@ struct ToolsView: View {
             } header: {
                 Text("JIT")
             } footer: {
-                Text("Currently broken.")
+                Text("当前已失效。")
             }
 
             Section {
                 Button {
                     if mgr.PPHelper() {
-                        status = "Succeeded. Open the Pocket Poster app, open settings and tap Detect."
+                        status = "操作已成功。请打开 Pocket Poster 应用，进入设置并轻点「检测」。"
                     } else {
-                        status = "Failed. Check logs."
+                        status = "操作失败。请检查日志。"
                     }
                 } label: {
-                    Text("Pocket Poster Helper")
+                    Text("Pocket Poster 助手")
                 }
                 .disabled(!mgr.sbxready)
             } header: {
                 Text("Pocket Poster")
             } footer: {
-                Text("Get the needed hashes for Pocket Poster without the need of a PC.")
+                Text("无需电脑即可获取 Pocket Poster 所需的哈希值。")
             }
             
             Section {
                 HStack {
                     if showtoken {
-                        Text(mgr.sbxready ? "tkn" : "No Saved Token.")
+                        Text(mgr.sbxready ? "tkn" : "无已保存的令牌。")
                             .foregroundColor(.secondary)
                             .monospaced()
                     } else {
@@ -173,7 +173,7 @@ struct ToolsView: View {
                                 .lineLimit(1)
                                 .truncationMode(.middle)
                         } else {
-                            Text("No Saved Token.")
+                            Text("无已保存的令牌。")
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -192,13 +192,13 @@ struct ToolsView: View {
                         Button {
                             UIPasteboard.general.string = token
                         } label: {
-                            Label("Copy", systemImage: "doc.on.doc")
+                            Label("复制", systemImage: "doc.on.doc")
                         }
                     }
                 }
 
                 HStack {
-                    Text("Class:")
+                    Text("类别：")
                     Spacer()
 
                     Picker(" ", selection: $issueclass) {
@@ -210,7 +210,7 @@ struct ToolsView: View {
                 }
 
                 HStack {
-                    Text("Path:")
+                    Text("路径：")
                     Spacer()
                     
                     TextField("/", text: $issuepath)
@@ -226,16 +226,16 @@ struct ToolsView: View {
                 Button {
                     token = mgr.sbxissuetoken(extClass: issueclass.rawValue, path: issuepath) ?? ""
                 } label: {
-                    Text("Issue Token")
+                    Text("签发令牌")
                 }
                 .disabled(!mgr.sbxready)
             } header: {
-                Text("Sandbox")
+                Text("沙盒")
             }
         }
-        .navigationTitle("Tools")
-        .alert("Status", isPresented: .constant(status != nil)) {
-                Button("OK") { status = nil }
+        .navigationTitle("工具")
+        .alert("状态", isPresented: .constant(status != nil)) {
+                Button("确定") { status = nil }
             } message: {
                 Text(status ?? "")
             }

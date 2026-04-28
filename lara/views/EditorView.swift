@@ -39,7 +39,6 @@ struct EditorView: View {
     
     private let path = "/var/containers/Shared/SystemGroup/systemgroup.com.apple.mobilegestaltcache/Library/Caches/com.apple.MobileGestalt.plist"
     private let ogmgurl: URL
-    let os = ProcessInfo().operatingSystemVersion
 
     init() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -54,14 +53,14 @@ struct EditorView: View {
             _mg = State(initialValue: try NSMutableDictionary(contentsOf: URL(fileURLWithPath: path), error: ()))
         } catch {
             _mg = State(initialValue: [:])
-            _status = State(initialValue: "Failed to copy MobileGestalt: \(error)")
+            _status = State(initialValue: "复制 MobileGestalt 失败：\(error)")
         }
         guard let cacheExtra = mg["CacheExtra"] as? NSMutableDictionary, let oPeik = cacheExtra["oPeik/9e8lQWMszEjbPzng"] as? NSMutableDictionary else {
-            _status = State(initialValue: "Failed to get dictionaries from MobileGestalt. Reopen the page.")
+            _status = State(initialValue: "无法从 MobileGestalt 获取字典。请重新打开页面。")
             return
         }
         guard let subType = oPeik["ArtworkDeviceSubType"] as? Int else {
-            _status = State(initialValue: "Failed to get SubType from MobileGestalt. Reopen the page.")
+            _status = State(initialValue: "无法从 MobileGestalt 获取 SubType。请重新打开页面。")
             return
         }
         _selectedSubType = State(initialValue: subType)
@@ -77,39 +76,35 @@ struct EditorView: View {
             List {
                 Section {
                     HStack {
-                        Text("Dynamic Island")
+                        Text("灵动岛")
                         
                         Spacer()
                         
                         Picker("", selection: $selectedSubType) {
-                            Text("Original (\(String(ogSubType)))").tag(ogSubType)
+                            Text("默认 (\(String(ogSubType)))").tag(ogSubType)
                             ForEach(SubType.allCases.filter { $0.rawValue != ogSubType }) { subtype in
                                 Text(subtype.displayName).tag(subtype.rawValue)
                             }
                         }
                         .pickerStyle(.menu)
                     }
-                    Toggle("Action Button", isOn: mgkeybinding(["cT44WE1EohiwRzhsZ8xEsw"]))
-                        .disabled(requiresVersion(17))
-                    Toggle("Allow installing iPadOS apps", isOn: mgkeybinding(["9MZ5AdH43csAUajl/dU+IQ"], type: [Int].self, default: [1], enable: [1, 2]))
-                    Toggle("Always on Display (18.0+)", isOn: mgkeybinding(["j8/Omm6s1lsmTDFsXjsBfA", "2OOJf1VhaM7NxfRok3HbWQ"]))
-                        .disabled(requiresVersion(18))
+                    Toggle("操作按钮 (17+)", isOn: mgkeybinding(["cT44WE1EohiwRzhsZ8xEsw"]))
+                    Toggle("允许安装 iPadOS 应用", isOn: mgkeybinding(["9MZ5AdH43csAUajl/dU+IQ"], type: [Int].self, default: [1], enable: [1, 2]))
+                    Toggle("全天候显示 (18.0+)", isOn: mgkeybinding(["j8/Omm6s1lsmTDFsXjsBfA", "2OOJf1VhaM7NxfRok3HbWQ"]))
                     // Toggle("Apple Intelligence", isOn: bindingForAppleIntelligence())
                     //    .disabled(requiresVersion(18))
                     Toggle("Apple Pencil", isOn: mgkeybinding(["yhHcB0iH0d1XzPO/CFd3ow"]))
-                    Toggle("Boot chime", isOn: mgkeybinding(["QHxt+hGLaBPbQJbXiUJX3w"]))
-                    Toggle("Camera button (18.0rc+)", isOn: mgkeybinding(["CwvKxM2cEogD3p+HYgaW0Q", "oOV1jhJbdV3AddkcCg0AEA"]))
-                        .disabled(requiresVersion(18))
-                    Toggle("Charge limit (17+)", isOn: mgkeybinding(["37NVydb//GP/GrhuTN+exg"]))
-                    .   disabled(requiresVersion(17))
-                    Toggle("Crash Detection (might not work)", isOn: mgkeybinding(["HCzWusHQwZDea6nNhaKndw"]))
+                    Toggle("启动铃声", isOn: mgkeybinding(["QHxt+hGLaBPbQJbXiUJX3w"]))
+                    Toggle("相机按钮 (18.0rc+)", isOn: mgkeybinding(["CwvKxM2cEogD3p+HYgaW0Q", "oOV1jhJbdV3AddkcCg0AEA"]))
+                    Toggle("充电上限 (17+)", isOn: mgkeybinding(["37NVydb//GP/GrhuTN+exg"]))
+                    Toggle("车祸检测 (可能无效)", isOn: mgkeybinding(["HCzWusHQwZDea6nNhaKndw"]))
                     // Toggle("Dynamic Island (17.4+, might not work)", isOn: mgkeybinding(["YlEtTtHlNesRBMal1CqRaA"]))
                     // Toggle("Disable region restrictions", isOn: bindingForRegionRestriction())
-                    Toggle("Internal Storage info", isOn: mgkeybinding(["LBJfwOEzExRxzlAnSuI7eg"]))
+                    Toggle("内部存储信息", isOn: mgkeybinding(["LBJfwOEzExRxzlAnSuI7eg"]))
                     // Toggle("Internal stuff", isOn: bindingForInternalStuff())
-                    Toggle("Security Research Device", isOn: mgkeybinding(["XYlJKKkj2hztRP1NWWnhlw"]))
-                    Toggle("Metal HUD for all apps", isOn: mgkeybinding(["EqrsVvjcYDdxHBiQmGhAWw"]))
-                    Toggle("Stage Manager", isOn: mgkeybinding(["qeaj75wk3HF4DwQ8qbIi7g"]))
+                    Toggle("Apple 安全性研究设备", isOn: mgkeybinding(["XYlJKKkj2hztRP1NWWnhlw"]))
+                    Toggle("所有应用显示 Metal HUD", isOn: mgkeybinding(["EqrsVvjcYDdxHBiQmGhAWw"]))
+                    Toggle("台前调度 (仅 iPad?)", isOn: mgkeybinding(["qeaj75wk3HF4DwQ8qbIi7g"]))
                         .disabled(UIDevice.current.userInterfaceIdiom != .pad)
                     if UIDevice._hasHomeButton() {
                         Toggle("Tap to Wake (iPhone SE)", isOn: mgkeybinding(["yZf3GTRMGTuwSV/lD7Cagw"]))
@@ -117,28 +112,28 @@ struct EditorView: View {
                 } header: {
                     Text("MobileGestalt")
                 } footer: {
-                    Text("Note: some tweaks may not work or cause instability.\nWARNING: Never enable features your device doesn't support.")
+                    Text("注意：部分调整可能无效或导致不稳定。\n警告：切勿启用设备不支持的功能。")
                 }
                 Section {
                     let cacheExtra = mg["CacheExtra"] as? NSMutableDictionary
-                    Toggle("Become iPadOS", isOn: bindingForTrollPad())
+                    Toggle("伪装 iPadOS", isOn: bindingForTrollPad())
                     // validate DeviceClass
                         .disabled(cacheExtra?["+3Uf0Pm5F8Xy7Onyvko0vA"] as? String != "iPhone")
                 } footer: {
-                    Text("Override user interface idiom to iPadOS, so you could use all iPadOS multitasking features on iPhone. Gives you the same capabilities as TrollPad, but may cause some issues.\nPLEASE DO NOT TURN OFF SHOW DOCK IN STAGE MANAGER OTHERWISE YOUR PHONE WILL BOOTLOOP WHEN ROTATING TO LANDSCAPE.")
+                    Text("将用户界面风格覆盖为 iPadOS，以便在 iPhone 上使用所有 iPadOS 多任务功能。提供与 TrollPad 相同的能力，但可能导致一些问题。\n请不要关闭台前调度中的显示 Dock，否则横屏时手机将无限重启。")
                 }
                 Section {
                     HStack {
-                        Text("Status")
+                        Text("状态")
                         
                         Spacer()
                         
                         if valid {
-                            Text("valid!")
+                            Text("有效！")
                                 .monospaced(true)
                                 .foregroundColor(.green)
                         } else {
-                            Text("invalid.")
+                            Text("无效。")
                                 .monospaced(true)
                                 .foregroundColor(.red)
                         }
@@ -146,18 +141,18 @@ struct EditorView: View {
                     Button() {
                         load()
                     } label: {
-                        Text("Reload from plist")
+                        Text("重新加载 plist")
                     }
                     Button() {
                         apply()
                     } label: {
-                        Text("Apply Modified MobileGestalt")
+                        Text("应用修改后的 MobileGestalt")
                     }
                     .disabled(!valid)
                 } header: {
-                    Text("Apply")
+                    Text("应用")
                 } footer: {
-                    Text("Use at your own risk. Always keep a backup of your MobileGestalt somewhere safe.")
+                    Text("风险自负。请务必备份 MobileGestalt 到安全位置。")
                 }
                 
                 HStack(alignment: .top) {
@@ -175,7 +170,7 @@ struct EditorView: View {
                         Text("Jurre")
                             .font(.headline)
                         
-                        Text("The entire EditorView.")
+                        Text("整个 EditorView。")
                             .font(.subheadline)
                             .foregroundColor(Color.secondary)
                     }
@@ -190,19 +185,19 @@ struct EditorView: View {
                 }
             }
             .navigationTitle("MobileGestalt")
-            .alert("Status", isPresented: .constant(status != nil)) {
-                Button("OK") { status = nil }
+            .alert("状态", isPresented: .constant(status != nil)) {
+                Button("确定") { status = nil }
             } message: {
                 Text(status ?? "")
             }
-            .alert("Done", isPresented: .constant(alert != nil)) {
-                Button("Cancel") { alert = nil }
-                Button("Respring") {
+            .alert("完成", isPresented: .constant(alert != nil)) {
+                Button("取消") { alert = nil }
+                Button("注销") {
                     alert = nil
                     mgr.respring()
                 }
             } message: {
-                Text(alert ?? "uhh...")
+                Text(alert ?? "呃...")
             }
             .onAppear(perform: load)
         }
@@ -217,7 +212,7 @@ struct EditorView: View {
         do {
             mg = try NSMutableDictionary(contentsOf: URL(fileURLWithPath: path), error: ())
         } catch {
-            status = "Failed to load mobilegestalt"
+            status = "加载 mobilegestalt 失败"
         }
     }
 
@@ -225,12 +220,12 @@ struct EditorView: View {
         do {
             if selectedSubType != -1 {
                 guard let cacheExtra = mg["CacheExtra"] as? NSMutableDictionary, let oPeik = cacheExtra["oPeik/9e8lQWMszEjbPzng"] as? NSMutableDictionary else {
-                    status = "Failed to get dictionaries from MobileGestalt."
+                    status = "无法从 MobileGestalt 获取字典。"
                     return
                 }
                 oPeik["ArtworkDeviceSubType"] = selectedSubType
             } else {
-                status = "Selected SubType is -1? Reload the page."
+                status = "所选 SubType 为 -1？请重新加载页面。"
                 return
             }
             let data = try PropertyListSerialization.data(
@@ -246,13 +241,13 @@ struct EditorView: View {
             
             if result.ok {
                 mgr.logmsg("overwrote MobileGestalt at \(path)")
-                alert = "Applied modified mobilegestalt, respring to see changes."
+                alert = "已应用修改后的 mobilegestalt，注销后生效。"
             } else {
-                status = "overwrite failed: \(result.message)"
+                status = "覆盖失败：\(result.message)"
             }
             
         } catch {
-            status = "serialization failed: \(error.localizedDescription)"
+            status = "序列化失败：\(error.localizedDescription)"
         }
     }
     private func bindingForTrollPad() -> Binding<Bool> {
@@ -281,7 +276,7 @@ struct EditorView: View {
             },
             set: { enabled in
                 if enabled {
-                    status = "Become iPadOS is a risky feature so please take note of the following:\n\n1. iOS Only apps, like WhatsApp, can lose data. It's recommended to offload these apps.\n2. The homescreen layout can get fucked if you have empty space.\n3. If you have an alphabetical password, it's very hard to get into your phone after locking.\n4. Any option with Dock under Stage Manager should NOT be modified.\n\n Only continue if you're okay with this. Else click reload from plist"
+                    status = "伪装 iPadOS 是有风险的功能，请注意以下事项：\n\n1. 仅限 iOS 的应用（如 WhatsApp）可能会丢失数据。建议卸载这些应用。\n2. 如果主屏幕有空位，布局可能会乱掉。\n3. 如果您使用字母密码，锁屏后很难解锁手机。\n4. 台前调度中任何与 Dock 相关的选项都不应修改。\n\n仅在您接受这些风险时继续。否则请点击重新加载 plist 。"
                 }
                 cacheData.mutableBytes.storeBytes(of: enabled ? 3 : 1, toByteOffset: valueOffset, as: Int.self)
                 for key in keys {
@@ -297,7 +292,7 @@ struct EditorView: View {
             }
         )
     }
-
+    
     private func mgkeybinding<T: Equatable>(_ keys: [String], type: T.Type = Int.self, default: T? = 0, enable: T? = 1) -> Binding<Bool> {
         guard let cachextra = mg["CacheExtra"] as? NSMutableDictionary else {
             return State(initialValue: false).projectedValue
@@ -322,12 +317,5 @@ struct EditorView: View {
                 valid = validate(mg)
             }
         )
-    }
-
-    private func requiresVersion(_ major : Int, _ minor: Int = 0, _ patch: Int = 0) -> Bool {
-        // XXYYZZ: major XX, minor YY, patch ZZ
-        let requiredVersion = major*10000 + minor*100 + patch
-        let currentVersion = os.majorVersion*10000 + os.minorVersion*100 + os.patchVersion
-        return currentVersion < requiredVersion
     }
 }

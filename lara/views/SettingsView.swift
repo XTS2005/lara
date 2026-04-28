@@ -79,7 +79,7 @@ struct SettingsView: View {
                             Text(appname)
                                 .font(.headline)
                             
-                            Text("Version \(appversion)")
+                            Text("版本 \(appversion)")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -96,24 +96,24 @@ struct SettingsView: View {
                     }
                     .pickerStyle(.segmented)
                 } header: {
-                    Text("Method")
+                    Text("模式")
                 } footer: {
                     if selectedmethod == .vfs {
-                        Text("VFS only.")
+                        Text("仅 VFS。")
                     } else if selectedmethod == .sbx {
-                        Text("SBX only.")
+                        Text("仅 SBX。")
                     } else {
-                        Text("Hybrid: SBX for read, VFS for write.\nBest method ever. (Thanks Huy)")
+                        Text("混合：SBX 用于读取，VFS 用于写入。\n最佳模式。（感谢 Huy）")
                     }
                 }
                 
                 Section {
-                    Toggle("Disable log dividers", isOn: $loggernobullshit)
+                    Toggle("禁用日志分隔符", isOn: $loggernobullshit)
                         .onChange(of: loggernobullshit) { _ in
                             globallogger.clear()
                         }
                     
-                    Toggle("Keep Alive", isOn: $iskeepalive)
+                    Toggle("保持活跃", isOn: $iskeepalive)
                         .onChange(of: iskeepalive) { _ in
                             if iskeepalive {
                                 if !kaenabled { toggleka() }
@@ -122,31 +122,31 @@ struct SettingsView: View {
                             }
                         }
                     
-                    Toggle("Show File Manager in Tabs", isOn: $showfmintabs)
-                    Toggle("Enable recursive search in File Manager", isOn: $fmRecursiveSearch)
+                    Toggle("在标签页中显示文件管理器", isOn: $showfmintabs)
+                    Toggle("在文件管理器中启用深度搜索", isOn: $fmRecursiveSearch)
                 } header: {
-                    Text("Lara Settings")
+                    Text("Lara 设置")
                 } footer: {
-                    Text("Keep Alive keeps the app running in the background when it is minimized (not closed from app switcher).")
+                    Text("「保持活跃」可在应用最小化时使其继续在后台运行。")
                 }
 
                 Section {
-                    Picker("Display Mode", selection: $selectedFmAppsDisplayMode) {
+                    Picker("显示模式", selection: $selectedFmAppsDisplayMode) {
                         ForEach(fmAppsDisplayMode.allCases, id: \.self) { mode in
                             Text(mode.rawValue).tag(mode)
                         }
                     }
                     .pickerStyle(.menu)
                 } header: {
-                    Text("File Manager App Management")
+                    Text("文件管理器应用管理")
                 } footer: {
-                    Text("Change the way app folders get displayed in the file manager.")
+                    Text("更改应用文件夹在文件管理器中的显示方式。")
                 }
 
                 #if !DISABLE_REMOTECALL
                 Section {
-                    Toggle("Stash KRW primitives", isOn: $stashkrw)
-                    Toggle("Allow >10 dock icons", isOn: $rcdockunlimited)
+                    Toggle("缓存 KRW 原语", isOn: $stashkrw)
+                    Toggle("允许超过10个Dock栏图标", isOn: $rcdockunlimited)
                 } header: {
                     Text("RemoteCall")
                 }
@@ -154,7 +154,7 @@ struct SettingsView: View {
 
                 Section {
                     if !hasoffsets {
-                        Button("Download Kernelcache") {
+                        Button("下载 Kernelcache") {
                             guard !downloadingkernelcache else { return }
                             downloadingkernelcache = true
                             DispatchQueue.global(qos: .userInitiated).async {
@@ -167,12 +167,12 @@ struct SettingsView: View {
                         }
                         .disabled(downloadingkernelcache)
                         
-                        Button("Fetch Kernelcache") {
+                        Button("获取 Kernelcache") {
                             mgr.run()
                         }
                         
                         HStack {
-                            Button("Import Kernelcache from Files") {
+                            Button("从文件导入 Kernelcache") {
                                 guard !importingkernelcache else { return }
                                 showkcacheimporter = true
                             }
@@ -191,51 +191,51 @@ struct SettingsView: View {
                     Button {
                         showresetalert = true
                     } label: {
-                        Text("Delete Kernelcache Data")
+                        Text("删除 Kernelcache 数据")
                             .foregroundColor(.red)
                     }
                 } header: {
                     Text("Kernelcache")
                 } footer: {
                     if !showkcachetips {
-                        Text("Deleting and redownloading Kernelcache can fix a lot of issues. Try this before making a github Issue.")
+                        Text("删除并重新下载 Kernelcache 可以解决许多问题。在提交 GitHub Issue 之前请先尝试此操作。")
                     }
                 }
                 
                 if showkcachetips {
                     Section {
                         VStack(alignment: .leading, spacing: 0) {
-                            Text("How to obtain a kernelcache (macOS)")
+                            Text("如何获取 kernelcache（macOS）")
                                 .font(.footnote.weight(.semibold))
                                 .foregroundColor(.primary)
                             
-                            Text("1. Download the IPSW tool for your device.")
+                            Text("1. 下载适用于您设备的 IPSW 工具。")
                             Link("https://github.com/blacktop/ipsw/releases",
                                  destination: URL(string: "https://github.com/blacktop/ipsw/releases")!)
                             
-                            Text("2. Extract the archive.")
-                            Text("3. Open Terminal.")
-                            Text("4. Navigate to the extracted folder:")
+                            Text("2. 解压压缩包。")
+                            Text("3. 打开终端。")
+                            Text("4. 导航到解压后的文件夹：")
                             Text("cd /path/to/ipsw_3.1.671_something_something/")
                                 .font(.system(.caption2, design: .monospaced))
                                 .textSelection(.enabled)
                                 .foregroundColor(.primary)
                             
-                            Text("5. Extract the kernel:")
+                            Text("5. 提取内核：")
                             Text("./ipsw extract --kernel [drag your ipsw here]")
                                 .font(.system(.caption2, design: .monospaced))
                                 .textSelection(.enabled)
                                 .foregroundColor(.primary)
                             
-                            Text("6. Get the kernelcache file.")
-                            Text("7. Transfer the kernelcache to your iCloud or iPhone.")
-                            Text("8. Tap the button above and select the kernelcache, for example kernelcache.release.iPhone14,3.")
+                            Text("6. 获取 kernelcache 文件。")
+                            Text("7. 将 kernelcache 传输到您的 iCloud 或 iPhone。")
+                            Text("8. 点击上方按钮并选择 kernelcache 文件，例如 kernelcache.release.iPhone14,3。")
                         }
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.vertical, 4)
                     } footer: {
-                        Text("Deleting and redownloading Kernelcache can fix a lot of issues. Try this before making a github Issue.")
+                        Text("删除并重新下载 Kernelcache 可以解决许多问题。在提交 GitHub Issue 之前请先尝试此操作。")
                     }
                 }
                 
@@ -244,18 +244,18 @@ struct SettingsView: View {
                         Button {
                             exit(0)
                         } label: {
-                            Text("Detach")
+                            Text("分离")
                         }
                         .foregroundColor(.red)
                     } header: {
-                        Text("Debugger")
+                        Text("调试器")
                     } footer: {
-                        Text("Lara does not work when a debugger is attached.")
+                        Text("调试器连接时 Lara 无法工作。")
                     }
                 }
                 
                 Section {
-                    NavigationLink("Modify Offsets") {
+                    NavigationLink("修改偏移量") {
                         List {
                             HStack { Text("off_inpcb_inp_list_le_next"); Spacer(); Text(hex(UInt64(off_inpcb_inp_list_le_next))).foregroundColor(.secondary).monospaced() }
                             HStack { Text("off_inpcb_inp_pcbinfo"); Spacer(); Text(hex(UInt64(off_inpcb_inp_pcbinfo))).foregroundColor(.secondary).monospaced() }
@@ -364,14 +364,14 @@ struct SettingsView: View {
                     }
                     Button {
                         save()
-                        statusmsg = "Offsets saved!"
+                        statusmsg = "偏移量已保存！"
                     } label: {
-                        Text("Save Offsets")
+                        Text("保存偏移量")
                     }
                 } header: {
-                    Text("offsets")
+                    Text("偏移量")
                 } footer: {
-                    Text("Manually save offsets after modifying values like t1sz_boot")
+                    Text("修改 t1sz_boot 等值后请手动保存偏移量")
                 }
                 
                 Section {
@@ -390,7 +390,7 @@ struct SettingsView: View {
                             Text("roooot")
                                 .font(.headline)
                             
-                            Text("Main Developer")
+                            Text("主要开发者")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -419,7 +419,7 @@ struct SettingsView: View {
                             Text("wh1te4ever")
                                 .font(.headline)
                             
-                            Text("Made darksword-kexploit-fun.")
+                            Text("制作了 darksword-kexploit-fun。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -432,7 +432,7 @@ struct SettingsView: View {
                             UIApplication.shared.open(url)
                         }
                     }
-                    
+
                     HStack(alignment: .top) {
                         AsyncImage(url: URL(string: "https://github.com/khanhduytran0.png")) { image in
                             image
@@ -448,7 +448,7 @@ struct SettingsView: View {
                             Text("Duy Tran")
                                 .font(.headline)
                             
-                            Text("Various remotecall-related improvements and features.")
+                            Text("提供了各种与 remotecall 相关的改进和功能。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -460,7 +460,7 @@ struct SettingsView: View {
                            UIApplication.shared.canOpenURL(url) {
                             UIApplication.shared.open(url)
                         }
-                    }
+                    } 
                     
                     HStack(alignment: .top) {
                         AsyncImage(url: URL(string: "https://github.com/AppInstalleriOSGH.png")) { image in
@@ -477,7 +477,7 @@ struct SettingsView: View {
                             Text("AppInstaller iOS")
                                 .font(.headline)
                             
-                            Text("Helped me with offsets and lots of other stuff. This project wouldnt have been possible without him!")
+                            Text("帮助我处理偏移量和许多其他事情。没有他，这个项目不可能完成！")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -506,7 +506,7 @@ struct SettingsView: View {
                             Text("jailbreak.party")
                                 .font(.headline)
                             
-                            Text("All of the DirtyZero tweaks.")
+                            Text("提供了所有 DirtyZero 调整与情感支持。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -535,7 +535,7 @@ struct SettingsView: View {
                             Text("Jurre")
                                 .font(.headline)
                             
-                            Text("EditorView, PocketPoster Helper, various improvements.")
+                            Text("提供了 EditorView, PocketPoster 助手，以及多项改进。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -548,7 +548,7 @@ struct SettingsView: View {
                             UIApplication.shared.open(url)
                         }
                     }
-                    
+
                     HStack(alignment: .top) {
                         AsyncImage(url: URL(string: "https://github.com/neonmodder123.png")) { image in
                             image
@@ -564,7 +564,7 @@ struct SettingsView: View {
                             Text("neon")
                                 .font(.headline)
                             
-                            Text("Made the respring script.")
+                            Text("制作了注销脚本。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -577,11 +577,44 @@ struct SettingsView: View {
                             UIApplication.shared.open(url)
                         }
                     }
+                    
+                    HStack(alignment: .top) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 40, height: 40)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                )
+        
+                            Text("汉")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundColor(.black)
+                        }
+    
+                        VStack(alignment: .leading) {
+                            Text("浮梦往事")
+                                .font(.headline)
+        
+                            Text("完成了汉化工作。\n如有漏翻或翻译不当之处，请务必告知！")
+                                .font(.subheadline)
+                                .foregroundColor(Color.secondary)
+                        }
+    
+                        Spacer()
+                    }
+                    .onTapGesture {
+                        if let url = URL(string: "https://www.coolapk.com/u/30819340"),
+                           UIApplication.shared.canOpenURL(url) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
                 } header: {
-                    Text("Credits")
+                    Text("致谢")
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle("设置")
         }
         .fileImporter(isPresented: $showkcacheimporter,
                       allowedContentTypes: [.data],
@@ -621,16 +654,16 @@ struct SettingsView: View {
                 break
             }
         }
-        .alert("Clear Kernelcache Data?", isPresented: $showresetalert) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
+        .alert("清除 Kernelcache 数据？", isPresented: $showresetalert) {
+            Button("取消", role: .cancel) {}
+            Button("删除", role: .destructive) {
                 clearkerncachedata()
             }
         } message: {
-            Text("This will delete the downloaded kernelcache and remove saved offsets.")
+            Text("这将删除已下载的 kernelcache 并移除已保存的偏移量。")
         }
-        .alert("Status", isPresented: .constant(statusmsg != nil)) {
-            Button("OK") { statusmsg = nil }
+        .alert("状态", isPresented: .constant(statusmsg != nil)) {
+            Button("确定") { statusmsg = nil }
         } message: {
             Text(statusmsg ?? "")
         }
@@ -683,11 +716,11 @@ struct SettingsView: View {
 enum method: String, CaseIterable {
     case vfs = "VFS"
     case sbx = "SBX"
-    case hybrid = "Hybrid"
+    case hybrid = "混合"
 }
 
 enum fmAppsDisplayMode: String, CaseIterable {
     case UUID = "UUID"
-    case bundleID = "Bundle ID"
-    case appName = "App Name"
+    case bundleID = "包名 ID"
+    case appName = "应用名称"
 }

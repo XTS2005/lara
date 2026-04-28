@@ -37,28 +37,28 @@ struct WhitelistView: View {
                         if patching {
                             HStack {
                                 ProgressView()
-                                Text("Working...")
+                                Text("处理中...")
                             }
                         } else {
-                            Text("Refresh")
+                            Text("刷新")
                         }
                     }
                     .disabled(!mgr.sbxready || patching)
 
-                    Button("Patch (Empty Plist)") {
+                    Button("修补（空 Plist）") {
                         patchall()
                     }
                     .disabled(!mgr.sbxready || patching)
                 } header: {
-                    Text("Actions")
+                    Text("操作")
                 } footer: {
-                    Text("Overwrites MobileIdentityData blacklist files with an empty plist.")
+                    Text("用空 plist 覆盖 MobileIdentityData 黑名单文件。")
                 }
 
                 ForEach(files) { f in
                     Section {
                         ScrollView {
-                            Text(contents[f.path] ?? "(not loaded)")
+                            Text(contents[f.path] ?? "（未加载）")
                                 .font(.system(size: 13, design: .monospaced))
                                 .textSelection(.enabled)
                         }
@@ -70,9 +70,9 @@ struct WhitelistView: View {
                     }
                 }
             }
-            .navigationTitle("Whitelist")
-            .alert("Status", isPresented: .constant(status != nil)) {
-                Button("OK") { status = nil }
+            .navigationTitle("白名单")
+            .alert("状态", isPresented: .constant(status != nil)) {
+                Button("确定") { status = nil }
             } message: {
                 Text(status ?? "")
             }
@@ -86,7 +86,7 @@ struct WhitelistView: View {
 
     private func loadall() {
         guard mgr.sbxready else {
-            status = "sandbox escape not ready"
+            status = "沙盒逃逸未就绪"
             return
         }
         patching = true
@@ -94,7 +94,7 @@ struct WhitelistView: View {
         var next: [String: String] = [:]
         for f in files {
             guard let data = sbxread(path: f.path, maxSize: 2 * 1024 * 1024) else {
-                next[f.path] = "(failed to read)"
+                next[f.path] = "（读取失败）"
                 continue
             }
             next[f.path] = render(data: data)
@@ -104,7 +104,7 @@ struct WhitelistView: View {
 
     private func patchall() {
         guard mgr.sbxready else {
-            status = "sandbox escape not ready"
+            status = "沙盒逃逸未就绪"
             return
         }
         patching = true
@@ -115,7 +115,7 @@ struct WhitelistView: View {
             format: .xml,
             options: 0
         ) else {
-            status = "failed to build empty plist"
+            status = "构建空 plist 失败"
             return
         }
 
@@ -129,9 +129,9 @@ struct WhitelistView: View {
         }
 
         if failures.isEmpty {
-            status = "Patched all files!"
+            status = "已修补所有文件！"
         } else {
-            status = "Failed to patch: \(failures.joined(separator: ", "))"
+            status = "修补失败：\(failures.joined(separator: ", "))"
         }
 
         loadall()
@@ -153,7 +153,7 @@ struct WhitelistView: View {
     private func sbxwrite(path: String, data: Data) -> String {
         let fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0o644)
         if fd == -1 {
-            return vfsfallback(path: path, data: data, reason: "open failed: errno=\(errno) \(String(cString: strerror(errno)))")
+            return vfsfallback(path: path, data: data, reason: "打开失败：错误码=\(errno) \(String(cString: strerror(errno)))")
         }
         defer { close(fd) }
 
@@ -162,18 +162,18 @@ struct WhitelistView: View {
         }
 
         if result == -1 {
-            return vfsfallback(path: path, data: data, reason: "write failed: errno=\(errno) \(String(cString: strerror(errno)))")
+            return vfsfallback(path: path, data: data, reason: "写入失败：错误码=\(errno) \(String(cString: strerror(errno)))")
         }
 
-        return "ok (\(result) bytes)"
+        return "成功（\(result) 字节）"
     }
 
     private func vfsfallback(path: String, data: Data, reason: String) -> String {
         guard mgr.vfsready else {
-            return reason + " | vfs not ready"
+            return reason + " | vfs 未就绪"
         }
         let ok = mgr.vfsoverwritewithdata(target: path, data: data)
-        return ok ? "ok (vfs overwrite)" : reason + " | vfs overwrite failed"
+        return ok ? "成功（vfs 覆盖）" : reason + " | vfs 覆盖失败"
     }
 
     private func render(data: Data) -> String {
@@ -190,7 +190,7 @@ struct WhitelistView: View {
         let maxBytes = min(data.count, 4096)
         let hex = data.prefix(maxBytes).map { String(format: "%02x", $0) }.joined(separator: " ")
         if data.count > maxBytes {
-            return hex + "\n... (\(data.count) bytes total)"
+            return hex + "\n...（共 \(data.count) 字节）"
         }
         return hex
     }

@@ -44,19 +44,19 @@ struct DarkBoardView: View {
                     scanApps()
                 } label: {
                     if isWorking {
-                        HStack { ProgressView(); Text("Scanning...") }
+                        HStack { ProgressView(); Text("扫描中...") }
                     } else {
-                        Text("Refresh Apps")
+                        Text("刷新应用")
                     }
                 }
                 .disabled(isWorking)
-            } header: { Text("Actions") } footer: {
-                Text("Place PNG files as bundleid.png in /var/mobile/darkboard")
+            } header: { Text("操作") } footer: {
+                Text("将 PNG 文件以 bundleid.png 命名放入 /var/mobile/darkboard")
             }
             
             Section {
                 if installedApps.isEmpty {
-                    Text("No apps found").foregroundColor(.secondary)
+                    Text("未找到应用").foregroundColor(.secondary)
                 } else {
                     ForEach(installedApps) { app in
                         Button {
@@ -75,7 +75,7 @@ struct DarkBoardView: View {
                         }
                     }
                 }
-            } header: { Text("Installed Apps") }
+            } header: { Text("已安装应用") }
             
             if !importedThemes.isEmpty {
                 Section {
@@ -86,13 +86,13 @@ struct DarkBoardView: View {
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text(theme.name).font(.headline)
-                                    Text("\(theme.iconCount) icons").font(.caption).foregroundColor(.secondary)
+                                    Text("\(theme.iconCount) 个图标").font(.caption).foregroundColor(.secondary)
                                 }
                                 Spacer()
                             }
                         }
                     }
-                } header: { Text("Imported Themes") }
+                } header: { Text("已导入主题") }
             }
         }
         .navigationTitle("DarkBoard")
@@ -107,8 +107,8 @@ struct DarkBoardView: View {
         .fileImporter(isPresented: $showThemeImporter, allowedContentTypes: [.folder], allowsMultipleSelection: false) { result in
             handleThemeImport(result)
         }
-        .alert("Status", isPresented: .constant(statusMessage != nil)) {
-            Button("OK") { statusMessage = nil }
+        .alert("状态", isPresented: .constant(statusMessage != nil)) {
+            Button("确定") { statusMessage = nil }
         } message: { Text(statusMessage ?? "") }
         .sheet(isPresented: $showThemePicker) {
             if let app = selectedApp {
@@ -226,17 +226,17 @@ struct DarkBoardView: View {
                     try fm.copyItem(at: url, to: URL(fileURLWithPath: destPath))
                     DispatchQueue.main.async {
                         self.scanImportedThemes()
-                        self.statusMessage = "Theme imported: \(themeName)"
+                        self.statusMessage = "主题已导入：\(themeName)"
                     }
                 } catch {
                     DispatchQueue.main.async {
-                        self.statusMessage = "Import failed: \(error.localizedDescription)"
+                        self.statusMessage = "导入失败：\(error.localizedDescription)"
                     }
                 }
                 DispatchQueue.main.async { self.isWorking = false }
             }
         case .failure(let error):
-            statusMessage = "Import failed: \(error.localizedDescription)"
+            statusMessage = "导入失败：\(error.localizedDescription)"
         }
     }
     
@@ -282,10 +282,10 @@ struct DarkBoardView: View {
         
         let sourcePath = iconThemePath + "/" + themeFile
         guard FileManager.default.fileExists(atPath: sourcePath) else {
-            statusMessage = "Theme file not found"; isWorking = false; return
+            statusMessage = "未找到主题文件"; isWorking = false; return
         }
         guard let targetPath = findIconPath(in: app.bundlePath) else {
-            statusMessage = "Could not find icon path"; isWorking = false; return
+            statusMessage = "无法找到图标路径"; isWorking = false; return
         }
         
         DispatchQueue.global(qos: .userInitiated).async {
@@ -293,10 +293,10 @@ struct DarkBoardView: View {
             DispatchQueue.main.async {
                 self.isWorking = false
                 if result.ok {
-                    self.statusMessage = "Icon applied! Respring to see changes."
+                    self.statusMessage = "图标已应用！注销后生效。"
                     self.mgr.logmsg("(darkboard) applied \(themeFile) to \(app.bundleId)")
                 } else {
-                    self.statusMessage = "Failed: \(result.message)"
+                    self.statusMessage = "失败：\(result.message)"
                 }
             }
         }
@@ -305,17 +305,17 @@ struct DarkBoardView: View {
     private func applyThemeIcon(to app: AppInfo, iconPath: String) {
         isWorking = true
         guard let targetPath = findIconPath(in: app.bundlePath) else {
-            statusMessage = "Could not find icon path"; isWorking = false; return
+            statusMessage = "无法找到图标路径"; isWorking = false; return
         }
         DispatchQueue.global(qos: .userInitiated).async {
             let result = self.mgr.lara_overwritefile(target: targetPath, source: iconPath)
             DispatchQueue.main.async {
                 self.isWorking = false
                 if result.ok {
-                    self.statusMessage = "Icon applied! Respring to see changes."
+                    self.statusMessage = "图标已应用！注销后生效。"
                     self.mgr.logmsg("(darkboard) applied icon to \(app.bundleId)")
                 } else {
-                    self.statusMessage = "Failed: \(result.message)"
+                    self.statusMessage = "失败：\(result.message)"
                 }
             }
         }
@@ -363,16 +363,16 @@ struct ThemePickerSheet: View {
                             }
                         }
                     }
-                } header: { Text("Available Themes") }
+                } header: { Text("可用主题") }
             }
-            .navigationTitle("Select Theme")
+            .navigationTitle("选择主题")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Apply") {
+                    Button("应用") {
                         if let theme = selectedTheme { onSelect(theme); dismiss() }
                     }
                     .disabled(selectedTheme == nil)
@@ -404,7 +404,7 @@ struct ThemeDetailView: View {
     var body: some View {
         List {
             Section {
-                Text("\(matchingApps.count) matching apps").foregroundColor(.secondary)
+                Text("\(matchingApps.count) 个匹配应用").foregroundColor(.secondary)
             }
             
             ForEach(matchingApps, id: \.1.id) { match in

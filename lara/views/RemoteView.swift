@@ -29,7 +29,7 @@ struct RemoteView: View {
     var body: some View {
         List {
             Section {
-                TextField("Date format (e.g. HH:mm)", text: $statusBarTimeFormat)
+                TextField("日期格式（例如 HH:mm）", text: $statusBarTimeFormat)
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
 
@@ -39,12 +39,12 @@ struct RemoteView: View {
                         return "status_bar_time_format() done"
                     }
                 } label: {
-                    Text("Apply")
+                    Text("应用")
                 }
             } header: {
-                Text("Status Bar Time Format")
+                Text("状态栏时间格式")
             } footer: {
-                Text("The text automatically updates every MINUTE")
+                Text("文本每分钟自动更新")
             }
 
             Section {
@@ -54,16 +54,16 @@ struct RemoteView: View {
                         return "hide_icon_labels() -> \(hidden)"
                     }
                 } label: {
-                    Text("Hide Icon Labels")
+                    Text("隐藏图标标签")
                 }
             } header: {
-                Text("SpringBoard")
+                Text("主屏幕")
             }
 
             Section {
                 Stepper(value: $hsColumns, in: 1...10) {
                     HStack {
-                        Text("Home screen columns")
+                        Text("主屏幕列数")
                         Spacer()
                         Text("\(hsColumns)")
                             .foregroundColor(.secondary)
@@ -73,7 +73,7 @@ struct RemoteView: View {
                 
                 Stepper(value: $hsRows, in: 1...10) {
                     HStack {
-                        Text("Home screen rows")
+                        Text("主屏幕行数")
                         Spacer()
                         Text("\(hsRows)")
                             .foregroundColor(.secondary)
@@ -88,14 +88,14 @@ struct RemoteView: View {
                             : "patch_homescreen_grid(\(hsColumns), \(hsRows)) -> failed"
                     }
                 } label: {
-                    Text("Apply Home Screen Grid")
+                    Text("应用主屏幕网格")
                 }
             }
 
             Section {
                 Stepper(value: $columns, in: 1...dockMaxColumns) {
                     HStack {
-                        Text("Dock columns")
+                        Text("Dock栏列数")
                         Spacer()
                         Text("\(columns)")
                             .foregroundColor(.secondary)
@@ -114,7 +114,7 @@ struct RemoteView: View {
                         return "set_dock_icon_count(\(columns)) -> \(result)"
                     }
                 } label: {
-                    Text("Apply Dock Columns")
+                    Text("应用 Dock 栏列数")
                 }
             }
 
@@ -125,7 +125,7 @@ struct RemoteView: View {
                         return "enable_upside_down() -> \(result)"
                     }
                 } label: {
-                    Text("Enable Upside Down")
+                    Text("启用上下颠倒")
                 }
             }
 
@@ -136,7 +136,7 @@ struct RemoteView: View {
                         return "enable_floating_dock() -> \(result)"
                     }
                 } label: {
-                    Text("Enable Floating Dock (Broken)")
+                    Text("启用悬浮 Dock (已失效)")
                 }
                 
                 Button {
@@ -145,33 +145,22 @@ struct RemoteView: View {
                         return "enable_grid_app_switcher() -> \(result)"
                     }
                 } label: {
-                    Text("Enable Grid App Switcher (Broken animation)")
+                    Text("启用网格应用切换器 (动画已失效)")
                 }
-                
-                Button {
-                    run("Enable UIKit Debug Overlay") {
-                        let result = enable_debug_overlay(mgr.sbProc)
-                        return "enable_debug_overlay() -> \(result)"
-                    }
-                } label: {
-                    Text("Enable UIKit Debug Overlay")
-                }
-            } footer: {
-                Text("To use UIKit Debug Overlay, double tap the status bar.")
             }
             
             Section {
-                Picker("Performance HUD", selection: $performanceHUD) {
-                    Text("Off").tag(-1)
-                    Text("Basic").tag(0)
-                    Text("Backdrops").tag(1)
-                    Text("Particles").tag(2)
-                    Text("Full").tag(3)
-                    Text("Power").tag(5)
+                Picker("性能 HUD", selection: $performanceHUD) {
+                    Text("关闭").tag(-1)
+                    Text("基础").tag(0)
+                    Text("背景").tag(1)
+                    Text("粒子").tag(2)
+                    Text("完整").tag(3)
+                    Text("功耗").tag(5)
                     Text("EDR").tag(7)
-                    Text("Glitches").tag(8)
-                    Text("GPU Time").tag(9)
-                    Text("Memory Bandwidth").tag(10)
+                    Text("故障").tag(8)
+                    Text("GPU 时间").tag(9)
+                    Text("内存带宽").tag(10)
                 }
                 .onChange(of: performanceHUD) { newValue in
                     set_performance_hud(mgr.sbProc, Int32(newValue))
@@ -182,10 +171,10 @@ struct RemoteView: View {
                     }
                 }
             } footer: {
-                Text("These call into SpringBoard via RemoteCall. Keep RemoteCall initialized while running them.")
+                Text("这些通过 RemoteCall 调用主屏幕。运行时请保持 RemoteCall 已初始化。")
                 
                 if !mgr.rcready {
-                    Text("RemoteCall is not initialized. How are you here?")
+                    Text("RemoteCall 未初始化。你是怎么来到这里的？")
                 }
             }
             .disabled(!mgr.rcready || running)
@@ -205,7 +194,7 @@ struct RemoteView: View {
                         }
                     } label: {
                         HStack {
-                            Text("Overwrite eligibility (one time setup)")
+                            Text("覆盖资格（一次性设置）")
                             if let state = mgr.eligibilitystate {
                                 Spacer()
                                 if state {
@@ -266,11 +255,11 @@ struct RemoteView: View {
                                 ProgressView(value: (mgr.eu1progress + mgr.eu2progress)/2)
                                     .progressViewStyle(.circular)
                                     .frame(width: 18, height: 18)
-                                Text("Running...")
+                                Text("运行中...")
                                 Spacer()
                                 Text("\(Int((mgr.eu1progress + mgr.eu2progress)/2 * 100))%")
                             } else {
-                                Text("Enable Spoof EU Region")
+                                Text("启用伪装 EU 区域")
                                 Spacer()
                                 if mgr.eu1progress + mgr.eu2progress == 2 {
                                     Image(systemName: "checkmark.circle")
@@ -284,18 +273,18 @@ struct RemoteView: View {
                     }
                     .disabled(mgr.eu1running || mgr.eu2running || mgr.eu1progress+mgr.eu2progress == 2)
                 } footer: {
-                    Text("Enables installing of EU/Japan Marketplace apps.")
+                    Text("允许安装 EU/日本商店应用。")
                 }
                 .disabled(isdebugged() || mgr.rcrunning || !mgr.rcready)
             }
             
             Section {
-                TextField("Process name", text: $customProcessName)
+                TextField("进程名称", text: $customProcessName)
                     .textInputAutocapitalization(.never)
                     .autocorrectionDisabled()
 
                 HStack {
-                    TextField("Function (symbol or 0xaddr)", text: $customFunctionName)
+                    TextField("函数（符号或十六进制地址）", text: $customFunctionName)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .lineLimit(1)
@@ -310,15 +299,15 @@ struct RemoteView: View {
 
                 Stepper(value: $customTimeoutMs, in: 10...5000, step: 10) {
                     HStack {
-                        Text("Timeout")
+                        Text("超时")
                         Spacer()
-                        Text("\(customTimeoutMs) ms")
+                        Text("\(customTimeoutMs) 毫秒")
                             .foregroundColor(.secondary)
                             .monospacedDigit()
                     }
                 }
 
-                Toggle("MIG filter bypass", isOn: $customMigBypass)
+                Toggle("MIG 过滤器绕过", isOn: $customMigBypass)
 
                 Button {
                     run("Custom RemoteCall \(customProcessName):\(customFunctionName)") {
@@ -369,7 +358,7 @@ struct RemoteView: View {
                         self.customLastResult = msg
                     }
                 } label: {
-                    Text("Call")
+                    Text("调用")
                 }
 
                 if !customLastResult.isEmpty {
@@ -379,9 +368,9 @@ struct RemoteView: View {
                         .textSelection(.enabled)
                 }
             } header: {
-                Text("Custom RemoteCall")
+                Text("自定义 RemoteCall")
             } footer: {
-                Text("Calls a symbol (via dlsym) or an absolute address. Numeric args are passed as x0-x7 then stack.")
+                Text("调用符号（通过 dlsym）或绝对地址。数字参数按 x0-x7 然后堆栈传递。")
             }
             .disabled(!mgr.rcready || running)
 
@@ -401,7 +390,7 @@ struct RemoteView: View {
                         Text("Duy Tran")
                             .font(.headline)
                         
-                        Text("Responsible for most things related to remotecall.")
+                        Text("负责与 remotecall 相关的大部分内容。")
                             .font(.subheadline)
                             .foregroundColor(Color.secondary)
                     }
@@ -430,7 +419,7 @@ struct RemoteView: View {
                         Text("0xjf")
                             .font(.headline)
                         
-                        Text("Powercuff and SBCustomizer")
+                        Text("Powercuff 和 SBCustomizer")
                             .font(.subheadline)
                             .foregroundColor(Color.secondary)
                     }
@@ -459,7 +448,7 @@ struct RemoteView: View {
                         Text("Scream")
                             .font(.headline)
                         
-                        Text("Fixed Hide Icon Labels")
+                        Text("修复了隐藏图标标签")
                             .font(.subheadline)
                             .foregroundColor(Color.secondary)
                     }
@@ -473,10 +462,10 @@ struct RemoteView: View {
                     }
                 }
             } header: {
-                Text("Credits")
+                Text("致谢")
             }
         }
-        .navigationTitle(Text("Tweaks"))
+        .navigationTitle(Text("调整"))
     }
 
     private func run(_ name: String, _ work: @escaping () -> String, onComplete: ((String) -> Void)? = nil) {

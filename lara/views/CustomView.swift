@@ -13,7 +13,7 @@ struct CustomView: View {
     @State private var targetPath: String = "/"
     @State private var showImporter = false
     @State private var sourcePath: String = ""
-    @State private var sourceName: String = "No file selected"
+    @State private var sourceName: String = "未选择文件"
     @State private var isoverwriting = false
 
     var body: some View {
@@ -24,7 +24,7 @@ struct CustomView: View {
                     .autocorrectionDisabled(true)
 
                 HStack {
-                    Text("Source")
+                    Text("源文件")
                     Spacer()
                     Text(sourceName)
                         .foregroundColor(.secondary)
@@ -32,27 +32,27 @@ struct CustomView: View {
                         .truncationMode(.middle)
                 }
 
-                Button("Choose Source File") {
+                Button("选择源文件") {
                     showImporter = true
                 }
 
-                Button(isoverwriting ? "Overwriting..." : "Overwrite Target") {
+                Button(isoverwriting ? "覆盖中..." : "覆盖目标") {
                     guard !isoverwriting else { return }
                     overwrite()
                 }
                 .disabled(!canOverwrite)
             } header: {
-                Text("Custom Path Overwrite")
+                Text("自定义路径覆盖")
             } footer: {
-                Text("This will overwrite the target file with the contents of the selected source file. Target size must be >= source size.")
+                Text("这将用所选源文件的内容覆盖目标文件。目标文件大小必须大于等于源文件大小。")
             }
 
             Section {
-                Text(globallogger.logs.last ?? "No logs yet")
+                Text(globallogger.logs.last ?? "暂无日志")
                     .font(.system(size: 13, design: .monospaced))
             }
         }
-        .navigationTitle("Custom Overwrite")
+        .navigationTitle("自定义覆盖")
         .fileImporter(
             isPresented: $showImporter,
             allowedContentTypes: [.item],

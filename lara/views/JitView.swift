@@ -36,15 +36,15 @@ struct JitView: View {
             List {
                 if !mgr.sbxready {
                     Section {
-                        Text("Sandbox escape not ready. Run the sandbox escape first.")
+                        Text("沙盒逃逸未就绪。请先执行沙盒逃逸。")
                             .foregroundColor(.secondary)
                     } header: {
-                        Text("Status")
+                        Text("状态")
                     }
                 }
 
                 HStack {
-                    TextField("Search", text: $query)
+                    TextField("搜索", text: $query)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
 
@@ -58,7 +58,7 @@ struct JitView: View {
 
                 Section {
                     if filteredProcesses.isEmpty {
-                        Text(query.isEmpty ? "No apps found." : "No matches.")
+                        Text(query.isEmpty ? "未找到应用。" : "无匹配结果。")
                             .foregroundColor(.secondary)
                     } else {
                         ForEach(filteredProcesses) { proc in
@@ -91,7 +91,7 @@ struct JitView: View {
                                     if enablingBundleID == proc.bundle {
                                         ProgressView()
                                     } else {
-                                        Text("Enable")
+                                        Text("启用")
                                     }
                                 }
                                 .disabled(enablingBundleID != nil || !mgr.dsready)

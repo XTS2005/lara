@@ -31,7 +31,7 @@ struct LGView: View {
             _gp = State(initialValue: try NSMutableDictionary(contentsOf: URL(fileURLWithPath: path), error: ()))
         } catch {
             _gp = State(initialValue: [:])
-            _status = State(initialValue: "Failed to copy GlobalPreferences: \(error)")
+            _status = State(initialValue: "拷贝 GlobalPreferences 失败：\(error)")
         }
 
     }
@@ -40,31 +40,31 @@ struct LGView: View {
         NavigationStack {
             List {
                 Section {
-                    Toggle("Force Solarium Fallback", isOn: gpkeybinding("SolariumForceFallback"))
-                    Toggle("Disable Liquid Glass", isOn: gpkeybinding("com.apple.SwiftUI.DisableSolarium"))
-                    Toggle("Ignore Liquid Glass App Build Check", isOn: gpkeybinding("com.apple.SwiftUI.IgnoreSolariumLinkedOnCheck"))
-                    Toggle("Disable Liquid Glass on LS Clock", isOn: gpkeybinding("SBDisallowGlassTime"))
-                    Toggle("Disable Liquid Glass on Dock", isOn: gpkeybinding("SBDisableGlassDock"))
-                    Toggle("Disable Specular Motion", isOn: gpkeybinding("SBDisableSpecularEverywhereUsingLSSAssertion"))
-                    Toggle("Disable Outer Refraction", isOn: gpkeybinding("SolariumDisableOuterRefraction"))
-                    Toggle("Disable Solarium HDR", isOn: gpkeybinding("SolariumAllowHDR", default: true, enable: false))
+                    Toggle("强制 Solarium 回退", isOn: gpkeybinding("SolariumForceFallback"))
+                    Toggle("禁用液态玻璃", isOn: gpkeybinding("com.apple.SwiftUI.DisableSolarium"))
+                    Toggle("忽略液态玻璃应用构建检查", isOn: gpkeybinding("com.apple.SwiftUI.IgnoreSolariumLinkedOnCheck"))
+                    Toggle("禁用锁屏时钟液态玻璃", isOn: gpkeybinding("SBDisallowGlassTime"))
+                    Toggle("禁用 Dock 液态玻璃", isOn: gpkeybinding("SBDisableGlassDock"))
+                    Toggle("禁用镜面反射动效", isOn: gpkeybinding("SBDisableSpecularEverywhereUsingLSSAssertion"))
+                    Toggle("禁用外部折射效果", isOn: gpkeybinding("SolariumDisableOuterRefraction"))
+                    Toggle("禁用 Solarium HDR", isOn: gpkeybinding("SolariumAllowHDR", default: true, enable: false))
                 } header: {
-                    Text("Liquid Glass")
+                    Text("液态玻璃")
                 } footer: {
-                    Text("Note: some tweaks may not work or cause instability.")
+                    Text("注意：部分调整可能无效或导致不稳定。")
                 }
                 Section {
                     HStack {
-                        Text("Status")
+                        Text("状态")
                         
                         Spacer()
                         
                         if valid {
-                            Text("valid!")
+                            Text("有效！")
                                 .monospaced(true)
                                 .foregroundColor(.green)
                         } else {
-                            Text("invalid.")
+                            Text("无效。")
                                 .monospaced(true)
                                 .foregroundColor(.red)
                         }
@@ -72,23 +72,23 @@ struct LGView: View {
                     Button() {
                         load()
                     } label: {
-                        Text("Refresh plist")
+                        Text("刷新 plist")
                     }
                     Button() {
                         apply()
                     } label: {
-                        Text("Apply")
+                        Text("应用")
                     }
                     .disabled(!valid)
                 } header: {
-                    Text("Actions")
+                    Text("操作")
                 } footer: {
-                    Text("Use at your own risk. Always keep a backup of \"/var/Managed Preferences/mobile/.GlobalPreferences.plist\" somewhere safe.")
+                    Text("请自行承担使用风险。务必始终将 \"/var/Managed Preferences/mobile/.GlobalPreferences.plist\" 备份至安全位置。")
                 }
             }
-            .navigationTitle("Liquid Glass")
-            .alert("Status", isPresented: .constant(status != nil)) {
-                Button("OK") { status = nil }
+            .navigationTitle("液态玻璃")
+            .alert("状态", isPresented: .constant(status != nil)) {
+                Button("确定") { status = nil }
             } message: {
                 Text(status ?? "")
             }
@@ -104,7 +104,7 @@ struct LGView: View {
         do {
             gp = try NSMutableDictionary(contentsOf: URL(fileURLWithPath: path), error: ())
         } catch {
-            status = "Failed to load GlobalPreferences"
+            status = "加载 GlobalPreferences 失败"
         }
 
         valid = validate(gp)
@@ -112,7 +112,7 @@ struct LGView: View {
 
     private func apply() {
         if !validate(gp) {
-            status = "Plist is invalid."
+            status = "Plist 无效。"
             return
         }
         do {
@@ -130,16 +130,16 @@ struct LGView: View {
                 load()
                 if valid {
                     mgr.logmsg("overwrote GlobalPreferences.plist at \(path)")
-                    status = "Applied plist, reboot to see changes."
+                    status = "已应用 plist，重启以查看更改。"
                 } else {
-                    status = "Applied plist but it's invalid. Don't respring and copy backup (lara/Documents/ogGlobalPreferences.plist) to orignal location."
+                    status = "已应用 plist 但无效。请勿注销，将备份 (lara/Documents/ogGlobalPreferences.plist) 复制到默认位置。"
                 }
             } else {
-                status = "overwrite failed: \(result.message)"
+                status = "覆盖失败：\(result.message)"
             }
             
         } catch {
-            status = "serialization failed: \(error.localizedDescription)"
+            status = "序列化失败：\(error.localizedDescription)"
         }
     }
     

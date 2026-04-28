@@ -10,8 +10,8 @@ import PDFKit
 import UniformTypeIdentifiers
 
 enum ReplaceOption: String, CaseIterable, Identifiable {
-    case photos = "Photos"
-    case files = "Files"
+    case photos = "相册"
+    case files = "文件"
     
     var id: String { self.rawValue }
 }
@@ -80,8 +80,8 @@ struct CardView: View {
                     Spacer()
                 }
 
-                Picker("Replace", selection: $selectedOption) {
-                    Text("Select…").tag(ReplaceOption?.none)
+                Picker("替换", selection: $selectedOption) {
+                    Text("选择…").tag(ReplaceOption?.none)
                     ForEach(ReplaceOption.allCases) { option in
                         Text(option.rawValue).tag(Optional(option))
                     }
@@ -93,12 +93,12 @@ struct CardView: View {
                     selectedOption = nil
                 }
 
-                Button("Restore") {
+                Button("恢复") {
                     onRestore(card)
                 }
                 .foregroundColor(.red)
 
-                Button("Edit Card Number") {
+                Button("编辑卡号") {
                     onEditNumber(card)
                 }
             }
@@ -114,22 +114,22 @@ struct CardView: View {
                     if working {
                         HStack {
                             ProgressView()
-                            Text("Scanning...")
+                            Text("扫描中...")
                         }
                     } else {
-                        Text("Refresh")
+                        Text("刷新")
                     }
                 }
                 .disabled(working)
             } header: {
-                Text("Actions")
+                Text("操作")
             } footer: {
-                Text("Uses SBX first and falls back to VFS for overwrite.\nGet card images [here](https://dynalist.io/d/ldKY6rbMR3LPnWz4fTvf_HCh).")
+                Text("优先使用 SBX，VFS 作为覆盖后备。\n在[这里](https://dynalist.io/d/ldKY6rbMR3LPnWz4fTvf_HCh)获取卡片图片。")
             }
 
             if cards.isEmpty {
                 Section {
-                    Text("No cards found.")
+                    Text("未找到卡片。")
                         .foregroundColor(.secondary)
                 }
             } else {
@@ -175,7 +175,7 @@ struct CardView: View {
                             Text("drkm9743")
                                 .font(.headline)
 
-                            Text("Inspiration.")
+                            Text("灵感来源。")
                                 .font(.subheadline)
                                 .foregroundColor(Color.secondary)
                         }
@@ -189,31 +189,31 @@ struct CardView: View {
                         }
                     }
                 } header: {
-                    Text("Credits")
+                    Text("致谢")
                 }
             }
         }
-        .navigationTitle("Card Overwrite")
-        .alert("Status", isPresented: .constant(status != nil)) {
-            Button("OK") { status = nil }
+        .navigationTitle("卡片覆盖")
+        .alert("状态", isPresented: .constant(status != nil)) {
+            Button("确定") { status = nil }
         } message: {
             Text(status ?? "")
         }
-        .alert("Edit Card Number", isPresented: $showCardNumberEditor) {
-            TextField("Suffix", text: $cardNumberInput)
-            Button("Save") {
+        .alert("编辑卡号", isPresented: $showCardNumberEditor) {
+            TextField("后缀", text: $cardNumberInput)
+            Button("保存") {
                 if let card = pendingNumberCard {
                     applyCardNumber(card: card, newSuffix: cardNumberInput)
                 }
             }
             if let card = pendingNumberCard, hasPassJsonBackup(card: card) {
-                Button("Restore Original", role: .destructive) {
+                Button("恢复默认", role: .destructive) {
                     restorePassJson(card: card)
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button("取消", role: .cancel) {}
         } message: {
-            Text(currentCardNumber.isEmpty ? "Current suffix: (none)" : "Current suffix: \(currentCardNumber)")
+            Text(currentCardNumber.isEmpty ? "当前后缀: (无)" : "当前后缀: \(currentCardNumber)")
         }
         .sheet(isPresented: $showimgpicker) {
             ImagePicker(imageData: $pickedImageData)
@@ -403,7 +403,7 @@ struct CardView: View {
 
     private func applyReplacement(card: CardItem, imageData: Data) {
         guard let image = UIImage(data: imageData) else {
-            status = "Invalid image data"
+            status = "无效的图片数据"
             return
         }
 
@@ -422,16 +422,16 @@ struct CardView: View {
         }
 
         guard let data = payload else {
-            status = "Failed to encode image"
+            status = "图片编码失败"
             return
         }
 
         backupIfNeeded(card: card)
         if writePreferSBX(path: card.imagePath, data: data) {
             clearCache(for: card)
-            status = "Card updated"
+            status = "卡片已更新"
         } else {
-            status = "Failed to overwrite card"
+            status = "卡片覆盖失败"
         }
     }
 
@@ -447,18 +447,18 @@ struct CardView: View {
     private func restoreImage(card: CardItem) {
         let backupPath = card.imagePath + ".backup"
         guard FileManager.default.fileExists(atPath: backupPath) else {
-            status = "No backup found"
+            status = "未找到备份"
             return
         }
         guard let data = readPreferSBX(path: backupPath, maxSize: 16 * 1024 * 1024) else {
-            status = "Failed to read backup"
+            status = "读取备份失败"
             return
         }
         if writePreferSBX(path: card.imagePath, data: data) {
             clearCache(for: card)
-            status = "Restored card image"
+            status = "已恢复卡片图片"
         } else {
-            status = "Restore failed"
+            status = "恢复失败"
         }
     }
 
@@ -500,7 +500,7 @@ struct CardView: View {
 
     private func applyCardNumber(card: CardItem, newSuffix: String) {
         guard var json = (readPassJson(for: card)).flatMap({ try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }) else {
-            status = "Failed to read pass.json"
+            status = "读取 pass.json 失败"
             return
         }
         backupPassJsonIfNeeded(card: card)
@@ -511,34 +511,34 @@ struct CardView: View {
             json["primaryAccountSuffix"] = trimmed
         }
         guard let data = try? JSONSerialization.data(withJSONObject: json, options: [.prettyPrinted, .sortedKeys]) else {
-            status = "Failed to encode pass.json"
+            status = "编码 pass.json 失败"
             return
         }
         if writePreferSBX(path: passJsonPath(for: card), data: data) {
             clearCache(for: card)
             currentCardNumber = trimmed
-            status = "Card number updated"
+            status = "卡号已更新"
         } else {
-            status = "Failed to update pass.json"
+            status = "更新 pass.json 失败"
         }
     }
 
     private func restorePassJson(card: CardItem) {
         let backup = passJsonBackupPath(for: card)
         guard FileManager.default.fileExists(atPath: backup) else {
-            status = "No pass.json backup"
+            status = "无 pass.json 备份"
             return
         }
         guard let data = readPreferSBX(path: backup, maxSize: 512 * 1024) else {
-            status = "Failed to read backup"
+            status = "读取备份失败"
             return
         }
         if writePreferSBX(path: passJsonPath(for: card), data: data) {
             clearCache(for: card)
             currentCardNumber = readCardNumber(for: card) ?? ""
-            status = "Restored pass.json"
+            status = "已恢复 pass.json"
         } else {
-            status = "Failed to restore pass.json"
+            status = "恢复 pass.json 失败"
         }
     }
 

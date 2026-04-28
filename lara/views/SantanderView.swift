@@ -1,4 +1,4 @@
-//
+////
 //  SantanderView.swift
 //  symlin2k
 //
@@ -34,10 +34,10 @@ struct SantanderView: View {
                     Image(systemName: "externaldrive")
                         .font(.system(size: 36, weight: .semibold))
                     
-                    Text("File Manager not ready")
+                    Text("文件管理器未就绪")
                         .font(.headline)
                     
-                    Text("1. Switch to hybrid mode in settings \n2. Escape the Sandbox \n3. Initialise VFS\n4. Try again.")
+                    Text("1. 在设置中切换到混合模式\n2. 执行沙盒逃逸\n3. 初始化 VFS\n4. 重试")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -177,7 +177,7 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
 
     override func tableView(_ tableView: UITableView, titleForFooterInSection section: Int) -> String? {
         if shouldShowFooter() {
-            return "This File Manager is very unreliable and overall shitty. For more information, look at the info button. \nIT MAY DISPLAY INACCURATE INFORMATION!"
+            return "此文件管理器非常不可靠，整体质量很差。更多信息请查看信息按钮。\n它可能显示不准确的信息！"
         }
         return nil
     }
@@ -188,16 +188,16 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
         return UIContextMenuConfiguration(actionProvider: { [weak self] _ in
             guard let self else { return UIMenu() }
             
-            let copyAction = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { [weak self] _ in
+            let copyAction = UIAction(title: "拷贝", image: UIImage(systemName: "doc.on.doc")) { [weak self] _ in
                 self?.copyItem(item)
             }
             
-            let infoAction = UIAction(title: "Get Info", image: UIImage(systemName: "info.circle")) { [weak self] _ in
+            let infoAction = UIAction(title: "获取信息", image: UIImage(systemName: "info.circle")) { [weak self] _ in
                 self?.showInfoForItem(item)
             }
             
             let replaceAction = UIAction(
-                title: "Replace With Clipboard",
+                title: "用剪贴板替换",
                 image: UIImage(systemName: "doc.on.clipboard"),
                 attributes: (Self.clipboard == nil || (!self.readUsesSBX && !self.useVFSOverwrite)) ? [.disabled] : []
             ) { [weak self] _ in
@@ -205,21 +205,21 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             }
             
             let chmodAction = UIAction(
-                title: "Chmod",
+                title: "权限修改",
                 image: UIImage(systemName: "lock.open")
             ) { [weak self] _ in
                 self?.presentChmodDialog(for: item)
             }
             
             let chownAction = UIAction(
-                title: "Chown",
+                title: "所有者修改",
                 image: UIImage(systemName: "person.crop.circle")
             ) { [weak self] _ in
                 self?.presentChownDialog(for: item)
             }
             
             let deleteAction = UIAction(
-                title: "Delete",
+                title: "删除",
                 image: UIImage(systemName: "trash"),
                 attributes: .destructive
             ) { [weak self] _ in
@@ -307,11 +307,11 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
 
         let message: String
         if !query.isEmpty {
-            message = "No matching items."
+            message = "无匹配项"
         } else if !displayHiddenFiles && !unfilteredContents.isEmpty {
-            message = "No visible items. Enable \"Display hidden files\" to show dotfiles."
+            message = "无可显示项。启用「显示隐藏文件」以显示点文件。"
         } else {
-            message = initialEmptyStateMessage ?? "Directory is empty."
+            message = initialEmptyStateMessage ?? "目录为空"
         }
 
         let label = UILabel()
@@ -324,17 +324,17 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
     }
 
     private static func loadDirectoryContents(for path: SantanderPath, readUsesSBX: Bool) -> (items: [SantanderPath], emptyStateMessage: String?) {
-        guard path.isDirectory else { return ([], "Not a directory.") }
+        guard path.isDirectory else { return ([], "不是目录") }
 
         let mgr = laramgr.shared
         if readUsesSBX {
-            guard mgr.sbxready else { return ([], "Sandbox escape not ready.") }
+            guard mgr.sbxready else { return ([], "沙盒逃逸未就绪") }
             return loadDirectoryContentsSBX(for: path)
         }
 
-        guard mgr.vfsready else { return ([], "Not ready.") }
+        guard mgr.vfsready else { return ([], "未就绪") }
         guard let entries = mgr.vfslistdir(path: path.path) else {
-            return ([], "Unable to list directory.")
+            return ([], "无法列出目录")
         }
 
         let items = entries.map { entry in
@@ -344,7 +344,7 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
         }
 
         if items.isEmpty {
-            return ([], "Directory is empty.")
+            return ([], "目录为空")
         }
 
         return (items, nil)
@@ -376,10 +376,10 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
         var isDir = ObjCBool(false)
         let exists = fm.fileExists(atPath: path.path, isDirectory: &isDir)
         if !exists || !isDir.boolValue {
-            return ([], "Directory no longer exists.")
+            return ([], "目录不再存在")
         }
         if !fm.isReadableFile(atPath: path.path) {
-            return ([], "Cannot list directory (missing permissions).")
+            return ([], "无法列出目录（权限不足）")
         }
         do {
             let entries = try fm.contentsOfDirectory(atPath: path.path)
@@ -458,15 +458,15 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
                 return SantanderPath(path: fullPath, isDirectory: isDir.boolValue, displayName: displayName)
             }
             if items.isEmpty {
-                return ([], "Directory is empty.")
+                return ([], "目录为空")
             }
             return (items, nil)
         } catch {
             let nsError = error as NSError
             if nsError.domain == NSCocoaErrorDomain && nsError.code == NSFileReadNoPermissionError {
-                return ([], "Cannot list directory (missing permissions).")
+                return ([], "无法列出目录（权限不足）")
             }
-            return ([], "Unable to list directory: \(nsError.localizedDescription)")
+            return ([], "无法列出目录: \(nsError.localizedDescription)")
         }
     }
 
@@ -496,53 +496,53 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
 
     private func makeRightBarButton() -> UIMenu {
         let uploadAction = UIAction(
-            title: "Upload File",
+            title: "上传文件",
             image: UIImage(systemName: "square.and.arrow.down")
         ) { [weak self] _ in
             self?.presentUploadPicker()
         }
         let pasteAction = UIAction(
-            title: "Paste",
+            title: "粘贴",
             image: UIImage(systemName: "doc.on.clipboard"),
             attributes: (Self.clipboard == nil || !readUsesSBX) ? [.disabled] : []
         ) { [weak self] _ in
             self?.pasteClipboardItem()
         }
         let pasteReplaceAction = UIAction(
-            title: "Paste (Replace)",
+            title: "粘贴（替换）",
             image: UIImage(systemName: "doc.on.clipboard.fill"),
             attributes: (Self.clipboard == nil || !readUsesSBX) ? [.disabled] : []
         ) { [weak self] _ in
             self?.pasteClipboardItem(replaceExisting: true)
         }
-        let sortAZ = UIAction(title: "Sort A-Z", image: UIImage(systemName: "textformat")) { [weak self] _ in
+        let sortAZ = UIAction(title: "排序 A-Z", image: UIImage(systemName: "textformat")) { [weak self] _ in
             guard let self else { return }
             self.unfilteredContents.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedAscending }
             self.applyFilters(query: self.navigationItem.searchController?.searchBar.text ?? "")
         }
-        let sortZA = UIAction(title: "Sort Z-A", image: UIImage(systemName: "textformat")) { [weak self] _ in
+        let sortZA = UIAction(title: "排序 Z-A", image: UIImage(systemName: "textformat")) { [weak self] _ in
             guard let self else { return }
             self.unfilteredContents.sort { $0.displayName.localizedCaseInsensitiveCompare($1.displayName) == .orderedDescending }
             self.applyFilters(query: self.navigationItem.searchController?.searchBar.text ?? "")
         }
-        let toggleHidden = UIAction(title: "Display hidden files", image: UIImage(systemName: "eye"), state: displayHiddenFiles ? .on : .off) { [weak self] _ in
+        let toggleHidden = UIAction(title: "显示隐藏文件", image: UIImage(systemName: "eye"), state: displayHiddenFiles ? .on : .off) { [weak self] _ in
             guard let self else { return }
             self.displayHiddenFiles.toggle()
             self.applyFilters(query: self.navigationItem.searchController?.searchBar.text ?? "")
         }
-        let goRoot = UIAction(title: "Go to Root", image: UIImage(systemName: "externaldrive")) { [weak self] _ in
+        let goRoot = UIAction(title: "前往根目录", image: UIImage(systemName: "externaldrive")) { [weak self] _ in
             guard let self else { return }
             let vc = SantanderPathListViewController(path: SantanderPath(path: "/", isDirectory: true), readUsesSBX: readUsesSBX, useVFSOverwrite: useVFSOverwrite)
             self.navigationController?.setViewControllers([vc], animated: true)
         }
-        let goHome = UIAction(title: "Go to Home", image: UIImage(systemName: "house")) { [weak self] _ in
+        let goHome = UIAction(title: "前往个人目录", image: UIImage(systemName: "house")) { [weak self] _ in
             guard let self else { return }
             let vc = SantanderPathListViewController(path: SantanderPath(path: NSHomeDirectory(), isDirectory: true), readUsesSBX: readUsesSBX, useVFSOverwrite: useVFSOverwrite)
             self.navigationController?.setViewControllers([vc], animated: true)
         }
-        let sortMenu = UIMenu(title: "Sort by..", image: UIImage(systemName: "arrow.up.arrow.down"), children: [sortAZ, sortZA])
-        let viewMenu = UIMenu(title: "View", image: UIImage(systemName: "eye"), children: [toggleHidden])
-        let goMenu = UIMenu(title: "Go to..", image: UIImage(systemName: "arrow.right"), children: [goRoot, goHome])
+        let sortMenu = UIMenu(title: "排序方式..", image: UIImage(systemName: "arrow.up.arrow.down"), children: [sortAZ, sortZA])
+        let viewMenu = UIMenu(title: "查看", image: UIImage(systemName: "eye"), children: [toggleHidden])
+        let goMenu = UIMenu(title: "前往..", image: UIImage(systemName: "arrow.right"), children: [goRoot, goHome])
         return UIMenu(children: [uploadAction, pasteAction, pasteReplaceAction, sortMenu, viewMenu, goMenu])
     }
 
@@ -584,28 +584,28 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
 
     @objc private func showInfo() {
         let msg = """
-        This browser is powered by vfs namecache lookups, not full directory enumeration. Therefore, some folders (eg. /private/var) may appear empty unless entries are already cached.
-        Symlinks may then also be shown as files even when their targets are directories.
+        此浏览器基于 vfs namecache 查找，而非完整目录枚举。因此，某些文件夹（例如 /private/var）可能显示为空，除非条目已被缓存。
+        符号链接也可能显示为文件，即使其目标是目录。
         
-        tldr; This File Manager is unreliable and sometimes completely inaccurate. If it works or not is basically 100% up to luck.
+        简而言之：此文件管理器不可靠，有时完全不准确。能否正常工作基本上 100% 靠运气。
         """
-        let alert = UIAlertController(title: "File Manager Info", message: msg, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(title: "文件管理器信息", message: msg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "确定", style: .default))
         present(alert, animated: true)
     }
 
     private func copyItem(_ item: SantanderPath) {
         Self.clipboard = ClipboardItem(path: item.path, isDirectory: item.isDirectory, name: item.lastPathComponent)
-        let alert = UIAlertController(title: "Copied", message: item.lastPathComponent, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(title: "已拷贝", message: item.lastPathComponent, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "确定", style: .default))
         present(alert, animated: true)
         setRightBarButton()
     }
 
     private func pasteClipboardItem(replaceExisting: Bool = false) {
         guard readUsesSBX else {
-            let alert = UIAlertController(title: "Paste Unavailable", message: "Paste is only supported in SBX mode.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "粘贴不可用", message: "粘贴仅在 SBX 模式下支持。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
             return
         }
@@ -614,8 +614,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
         let destDir = currentPath.path
         if clip.isDirectory {
             if destDir == clip.path || destDir.hasPrefix(clip.path + "/") {
-                let alert = UIAlertController(title: "Paste Failed", message: "Cannot paste a folder into itself.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                let alert = UIAlertController(title: "粘贴失败", message: "无法将文件夹粘贴到其自身", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
                 present(alert, animated: true)
                 return
             }
@@ -631,8 +631,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             try FileManager.default.copyItem(atPath: clip.path, toPath: dest)
             reloadContents()
         } catch {
-            let alert = UIAlertController(title: "Paste Failed", message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "粘贴失败", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
         }
     }
@@ -664,9 +664,9 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
     }
 
     private func confirmDelete(_ item: SantanderPath) {
-        let alert = UIAlertController(title: "Delete", message: "Delete \(item.lastPathComponent)?", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+        let alert = UIAlertController(title: "删除", message: "删除 \(item.lastPathComponent)?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.addAction(UIAlertAction(title: "删除", style: .destructive) { [weak self] _ in
             self?.deleteItem(item)
         })
         present(alert, animated: true)
@@ -675,27 +675,27 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
     func showResultAlert(success: Bool, title: String) {
         let alert = UIAlertController(
             title: title,
-            message: success ? "Operation completed." : "Operation failed.",
+            message: success ? "操作完成" : "操作失败",
             preferredStyle: .alert
         )
         
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: "确定", style: .default))
         present(alert, animated: true)
     }
     
     func presentChmodDialog(for item: SantanderPath) {
         let alert = UIAlertController(
-            title: "Chmod",
+            title: "权限修改",
             message: item.lastPathComponent,
             preferredStyle: .alert
         )
         
         alert.addTextField { textField in
-            textField.placeholder = "e.g. 755"
+            textField.placeholder = "例如 755"
             textField.keyboardType = .numberPad
         }
         
-        let apply = UIAlertAction(title: "Apply", style: .default) { [weak self] _ in
+        let apply = UIAlertAction(title: "应用", style: .default) { [weak self] _ in
             guard
                 let self,
                 let text = alert.textFields?.first?.text,
@@ -708,36 +708,36 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
                 DispatchQueue.main.async {
                     self.showResultAlert(
                         success: result == 0,
-                        title: "Chmod"
+                        title: "权限修改"
                     )
                 }
             }
         }
         
         alert.addAction(apply)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
         
         present(alert, animated: true)
     }
     
     func presentChownDialog(for item: SantanderPath) {
         let alert = UIAlertController(
-            title: "Chown",
+            title: "所有者修改",
             message: item.lastPathComponent,
             preferredStyle: .alert
         )
         
         alert.addTextField { tf in
-            tf.placeholder = "UID (e.g. 501)"
+            tf.placeholder = "UID（例如 501）"
             tf.keyboardType = .numberPad
         }
         
         alert.addTextField { tf in
-            tf.placeholder = "GID (e.g. 501)"
+            tf.placeholder = "GID（例如 501）"
             tf.keyboardType = .numberPad
         }
         
-        let apply = UIAlertAction(title: "Apply", style: .default) { [weak self] _ in
+        let apply = UIAlertAction(title: "应用", style: .default) { [weak self] _ in
             guard
                 let self,
                 let uidText = alert.textFields?[0].text,
@@ -752,22 +752,22 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
                 DispatchQueue.main.async {
                     self.showResultAlert(
                         success: result == 0,
-                        title: "Chown"
+                        title: "所有者修改"
                     )
                 }
             }
         }
         
         alert.addAction(apply)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
         
         present(alert, animated: true)
     }
 
     private func deleteItem(_ item: SantanderPath) {
         guard readUsesSBX else {
-            let alert = UIAlertController(title: "Delete Unavailable", message: "Delete is only supported in SBX mode.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "删除不可用", message: "删除仅在 SBX 模式下支持", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
             return
         }
@@ -775,8 +775,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             try FileManager.default.removeItem(atPath: item.path)
             reloadContents()
         } catch {
-            let alert = UIAlertController(title: "Delete Failed", message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "删除失败", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
         }
     }
@@ -792,21 +792,21 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
                 replaceItemSBX(item, clip: clip)
                 return
             }
-            let alert = UIAlertController(title: "Replace Unavailable", message: "Replace is only supported in SBX mode.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "替换不可用", message: "替换仅在 SBX 模式下支持", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
             return
         }
         guard readUsesSBX else {
-            let alert = UIAlertController(title: "Replace Unavailable", message: "Replace is only supported in SBX mode.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "替换不可用", message: "替换仅在 SBX 模式下支持", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
             return
         }
         if clip.isDirectory {
             if item.path == clip.path || item.path.hasPrefix(clip.path + "/") {
-                let alert = UIAlertController(title: "Replace Failed", message: "Cannot replace with a folder into itself.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                let alert = UIAlertController(title: "替换失败", message: "无法用文件夹替换其自身", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
                 present(alert, animated: true)
                 return
             }
@@ -818,8 +818,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             try FileManager.default.copyItem(atPath: clip.path, toPath: item.path)
             reloadContents()
         } catch {
-            let alert = UIAlertController(title: "Replace Failed", message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "替换失败", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
         }
     }
@@ -827,8 +827,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
     private func replaceItemVFS(_ item: SantanderPath, clip: ClipboardItem) {
         let mgr = laramgr.shared
         guard mgr.vfsready else {
-            let alert = UIAlertController(title: "VFS Not Ready", message: "Run VFS init before overwriting files.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "VFS 未就绪", message: "覆盖文件前请先初始化 VFS", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
             return
         }
@@ -836,8 +836,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
         if ok {
             reloadContents()
         } else {
-            let alert = UIAlertController(title: "Replace Failed", message: "VFS overwrite failed.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "替换失败", message: "VFS 覆盖失败", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
         }
     }
@@ -845,8 +845,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
     private func replaceItemSBX(_ item: SantanderPath, clip: ClipboardItem) {
         if clip.isDirectory {
             if item.path == clip.path || item.path.hasPrefix(clip.path + "/") {
-                let alert = UIAlertController(title: "Replace Failed", message: "Cannot replace with a folder into itself.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                let alert = UIAlertController(title: "替换失败", message: "无法用文件夹替换其自身", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
                 present(alert, animated: true)
                 return
             }
@@ -858,8 +858,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             try FileManager.default.copyItem(atPath: clip.path, toPath: item.path)
             reloadContents()
         } catch {
-            let alert = UIAlertController(title: "Replace Failed", message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "替换失败", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
         }
     }
@@ -867,7 +867,7 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
     private func showInfoForItem(_ item: SantanderPath) {
         let details = fileDetails(for: item.path)
         let alert = UIAlertController(title: item.lastPathComponent, message: details, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        alert.addAction(UIAlertAction(title: "确定", style: .default))
         present(alert, animated: true)
     }
 
@@ -877,9 +877,9 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
 
         var isDir = ObjCBool(false)
         let exists = fm.fileExists(atPath: path, isDirectory: &isDir)
-        lines.append("Exists: \(exists ? "yes" : "no")")
+        lines.append("存在: \(exists ? "是" : "否")")
         if exists {
-            lines.append("Kind: \(isDir.boolValue ? "directory" : "file")")
+            lines.append("类型: \(isDir.boolValue ? "目录" : "文件")")
         }
 
         let url = URL(fileURLWithPath: path)
@@ -896,43 +896,43 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
                 lines.append("UTType: \(type.identifier)")
             }
             if let size = values.fileSize {
-                lines.append("Size: \(size) bytes")
+                lines.append("大小: \(size) 字节")
             }
             if let created = values.creationDate {
-                lines.append("Created: \(created)")
+                lines.append("创建时间: \(created)")
             }
             if let modified = values.contentModificationDate {
-                lines.append("Modified: \(modified)")
+                lines.append("修改时间: \(modified)")
             }
             if let isSym = values.isSymbolicLink {
-                lines.append("Symlink: \(isSym ? "yes" : "no")")
+                lines.append("符号链接: \(isSym ? "是" : "否")")
             }
         }
 
         if let attrs = try? fm.attributesOfItem(atPath: path) {
             if let perms = attrs[.posixPermissions] as? NSNumber {
-                lines.append(String(format: "POSIX perms: %04o", perms.intValue))
+                lines.append(String(format: "POSIX 权限: %04o", perms.intValue))
             }
 
             if let owner = attrs[.ownerAccountName] as? String {
-                lines.append("Owner: \(owner)")
+                lines.append("所有者: \(owner)")
             }
             if let group = attrs[.groupOwnerAccountName] as? String {
-                lines.append("Group: \(group)")
+                lines.append("所属组: \(group)")
             }
         }
 
-        lines.append("Readable: \(fm.isReadableFile(atPath: path) ? "yes" : "no")")
-        lines.append("Writable: \(fm.isWritableFile(atPath: path) ? "yes" : "no")")
-        lines.append("Executable: \(fm.isExecutableFile(atPath: path) ? "yes" : "no")")
+        lines.append("可读: \(fm.isReadableFile(atPath: path) ? "是" : "否")")
+        lines.append("可写: \(fm.isWritableFile(atPath: path) ? "是" : "否")")
+        lines.append("可执行: \(fm.isExecutableFile(atPath: path) ? "是" : "否")")
 
         return lines.joined(separator: "\n")
     }
 
     private func presentUploadPicker() {
         guard readUsesSBX else {
-            let alert = UIAlertController(title: "Upload Unavailable", message: "Upload is only supported in SBX mode.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "上传不可用", message: "上传仅在 SBX 模式下支持", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
             return
         }
@@ -945,8 +945,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
         guard let url = urls.first else { return }
         guard url.startAccessingSecurityScopedResource() else {
-            let alert = UIAlertController(title: "Upload Failed", message: "Unable to access selected file.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "上传失败", message: "无法访问所选文件", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
             return
         }
@@ -963,8 +963,8 @@ final class SantanderPathListViewController: UITableViewController, UISearchResu
             try FileManager.default.copyItem(at: url, to: URL(fileURLWithPath: dest))
             reloadContents()
         } catch {
-            let alert = UIAlertController(title: "Upload Failed", message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "上传失败", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
         }
     }
@@ -1034,17 +1034,17 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
 
         let canEdit = readUsesSBX || useVFSOverwrite
         if canEdit {
-            let edit = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(toggleEdit))
+            let edit = UIBarButtonItem(title: "编辑", style: .plain, target: self, action: #selector(toggleEdit))
             edit.isEnabled = true
             editButton = edit
             navigationItem.rightBarButtonItems = [
                 edit,
-                UIBarButtonItem(title: "Preview", style: .plain, target: self, action: #selector(showPreview)),
+                UIBarButtonItem(title: "预览", style: .plain, target: self, action: #selector(showPreview)),
                 UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(showShare))
             ]
         } else {
             navigationItem.rightBarButtonItems = [
-                UIBarButtonItem(title: "Preview", style: .plain, target: self, action: #selector(showPreview)),
+                UIBarButtonItem(title: "预览", style: .plain, target: self, action: #selector(showPreview)),
                 UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(showShare))
             ]
         }
@@ -1057,7 +1057,7 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
         if readUsesSBX {
             if isImagePath(path) {
                 guard let data = readFileSBX(maxBytes: 8 * 1024 * 1024) else {
-                    setTextPreview("Failed to read file.\n\n" + unreadableFileDetails(for: path.path), editable: false)
+                    setTextPreview("读取文件失败\n\n" + unreadableFileDetails(for: path.path), editable: false)
                     return
                 }
                 if let image = UIImage(data: data) {
@@ -1086,13 +1086,13 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
                     isTextPreview = false
                     return
                 } else {
-                    textView.text = "Failed to prepare media file."
+                    textView.text = "准备媒体文件失败"
                     return
                 }
             }
 
             guard let data = readFileSBX(maxBytes: 2 * 1024 * 1024) else {
-                setTextPreview("Failed to read file.\n\n" + unreadableFileDetails(for: path.path), editable: false)
+                setTextPreview("读取文件失败\n\n" + unreadableFileDetails(for: path.path), editable: false)
                 return
             }
             let rendered = render(data: data)
@@ -1102,7 +1102,7 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
 
         if isImagePath(path) {
             guard let data = mgr.vfsread(path: path.path, maxSize: 8 * 1024 * 1024) else {
-                textView.text = "Failed to read file."
+                textView.text = "读取文件失败"
                 return
             }
             if let image = UIImage(data: data) {
@@ -1131,13 +1131,13 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
                 isTextPreview = false
                 return
             } else {
-                textView.text = "Failed to prepare media file."
+                textView.text = "准备媒体文件失败"
                 return
             }
         }
 
         guard let data = mgr.vfsread(path: path.path, maxSize: 2 * 1024 * 1024) else {
-            textView.text = "Failed to read file."
+            textView.text = "读取文件失败"
             return
         }
         let rendered = render(data: data)
@@ -1149,15 +1149,15 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
             saveEdits()
         } else {
             guard isTextPreview else {
-                let alert = UIAlertController(title: "Edit Unavailable", message: "This file type isn't editable in the viewer.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                let alert = UIAlertController(title: "编辑不可用", message: "此文件类型无法在查看器中编辑", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
                 present(alert, animated: true)
                 return
             }
             isEditingFile = true
             textView.isEditable = true
             textView.becomeFirstResponder()
-            editButton?.title = "Save"
+            editButton?.title = "保存"
         }
     }
 
@@ -1166,8 +1166,8 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
         if useVFSOverwrite {
             let mgr = laramgr.shared
             guard mgr.vfsready else {
-                let alert = UIAlertController(title: "VFS Not Ready", message: "Run VFS init before overwriting files.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                let alert = UIAlertController(title: "VFS 未就绪", message: "覆盖文件前请先初始化 VFS", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
                 present(alert, animated: true)
                 return
             }
@@ -1176,13 +1176,13 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
                 isEditingFile = false
                 textView.isEditable = false
                 textView.resignFirstResponder()
-                editButton?.title = "Edit"
-                let alert = UIAlertController(title: "Saved", message: "File updated.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                editButton?.title = "编辑"
+                let alert = UIAlertController(title: "已保存", message: "文件已更新", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
                 present(alert, animated: true)
             } else {
-                let alert = UIAlertController(title: "Save Failed", message: "VFS overwrite failed.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "OK", style: .default))
+                let alert = UIAlertController(title: "保存失败", message: "VFS 覆盖失败", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "确定", style: .default))
                 present(alert, animated: true)
             }
             return
@@ -1193,13 +1193,13 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
             isEditingFile = false
             textView.isEditable = false
             textView.resignFirstResponder()
-            editButton?.title = "Edit"
-            let alert = UIAlertController(title: "Saved", message: "File updated.", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            editButton?.title = "编辑"
+            let alert = UIAlertController(title: "已保存", message: "文件已更新", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
         } catch {
-            let alert = UIAlertController(title: "Save Failed", message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "保存失败", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
             present(alert, animated: true)
         }
     }
@@ -1224,7 +1224,7 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
 
     private func render(data: Data) -> (text: String, isEditable: Bool) {
         if data.isEmpty {
-            return ("(empty file)", true)
+            return ("(空文件)", true)
         }
 
         if let plist = decodePropertyList(from: data) {
@@ -1382,7 +1382,7 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
         let limit = min(data.count, 4096)
         let chunk = data.prefix(limit)
         var lines: [String] = []
-        lines.append("Binary data (\(data.count) bytes). Showing first \(limit) bytes:")
+        lines.append("二进制数据 (\(data.count) 字节)。显示前 \(limit) 字节:")
         lines.append("")
 
         var offset = 0
@@ -1406,9 +1406,9 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
 
         var isDir = ObjCBool(false)
         let exists = fm.fileExists(atPath: path, isDirectory: &isDir)
-        lines.append("Exists: \(exists ? "yes" : "no")")
+        lines.append("存在: \(exists ? "是" : "否")")
         if exists {
-            lines.append("Kind: \(isDir.boolValue ? "directory" : "regular item")")
+            lines.append("类型: \(isDir.boolValue ? "目录" : "常规项目")")
         }
 
         let url = URL(fileURLWithPath: path)
@@ -1423,33 +1423,33 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
                 lines.append("UTType: \(type.identifier)")
             }
             if let size = values.fileSize {
-                lines.append("Size: \(size) bytes")
+                lines.append("大小: \(size) 字节")
             }
             if let isSymLink = values.isSymbolicLink {
-                lines.append("Symlink: \(isSymLink ? "yes" : "no")")
+                lines.append("符号链接: \(isSymLink ? "是" : "否")")
             }
             if values.isSymbolicLink == true,
                let target = try? fm.destinationOfSymbolicLink(atPath: path) {
-                lines.append("Symlink target: \(target)")
+                lines.append("符号链接目标: \(target)")
             }
             if let isAlias = values.isAliasFile {
-                lines.append("Alias file: \(isAlias ? "yes" : "no")")
+                lines.append("替身文件: \(isAlias ? "是" : "否")")
             }
         }
 
         if let attrs = try? fm.attributesOfItem(atPath: path) {
             if let fileType = attrs[.type] as? FileAttributeType {
-                lines.append("File attribute type: \(fileType.rawValue)")
+                lines.append("文件属性类型: \(fileType.rawValue)")
             }
             let ownerName = attrs[.ownerAccountName] as? String
             let ownerID = (attrs[.ownerAccountID] as? NSNumber)?.intValue
             switch (ownerName, ownerID) {
             case let (name?, id?):
-                lines.append("Owner: \(name) (\(id))")
+                lines.append("所有者: \(name) (\(id))")
             case let (name?, nil):
-                lines.append("Owner: \(name)")
+                lines.append("所有者: \(name)")
             case let (nil, id?):
-                lines.append("Owner ID: \(id)")
+                lines.append("所有者 ID: \(id)")
             default:
                 break
             }
@@ -1458,29 +1458,29 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
             let groupID = (attrs[.groupOwnerAccountID] as? NSNumber)?.intValue
             switch (groupName, groupID) {
             case let (name?, id?):
-                lines.append("Group: \(name) (\(id))")
+                lines.append("所属组: \(name) (\(id))")
             case let (name?, nil):
-                lines.append("Group: \(name)")
+                lines.append("所属组: \(name)")
             case let (nil, id?):
-                lines.append("Group ID: \(id)")
+                lines.append("所属组 ID: \(id)")
             default:
                 break
             }
             if let perms = attrs[.posixPermissions] as? NSNumber {
-                lines.append(String(format: "POSIX perms: %04o", perms.intValue))
+                lines.append(String(format: "POSIX 权限: %04o", perms.intValue))
             }
         }
 
-        lines.append("Readable: \(fm.isReadableFile(atPath: path) ? "yes" : "no")")
-        lines.append("Writable: \(fm.isWritableFile(atPath: path) ? "yes" : "no")")
-        lines.append("Executable: \(fm.isExecutableFile(atPath: path) ? "yes" : "no")")
+        lines.append("可读: \(fm.isReadableFile(atPath: path) ? "是" : "否")")
+        lines.append("可写: \(fm.isWritableFile(atPath: path) ? "是" : "否")")
+        lines.append("可执行: \(fm.isExecutableFile(atPath: path) ? "是" : "否")")
 
         return lines.joined(separator: "\n")
     }
 
     @objc private func showPreview() {
         guard prepareTempFileIfNeeded(maxBytes: 128 * 1024 * 1024) else {
-            textView.text = "Failed to prepare preview."
+            textView.text = "准备预览失败"
             return
         }
         let ql = QLPreviewController()
@@ -1490,7 +1490,7 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
 
     @objc private func showShare() {
         guard prepareTempFileIfNeeded(maxBytes: 128 * 1024 * 1024) else {
-            textView.text = "Failed to prepare share."
+            textView.text = "准备分享失败"
             return
         }
         let av = UIActivityViewController(activityItems: [tempURL!], applicationActivities: nil)
@@ -1509,7 +1509,7 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
         if readUsesSBX {
             guard let size = fileSizeSBX(), size > 0 else { return false }
             if size > maxBytes {
-                textView.text = "File too large to preview (\(size) bytes)."
+                textView.text = "文件过大，无法预览（\(size) 字节）"
                 return false
             }
             tempURL = URL(fileURLWithPath: path.path)
@@ -1520,7 +1520,7 @@ final class SantanderFileReaderViewController: UIViewController, QLPreviewContro
         let size = vfs_filesize(path.path)
         guard size > 0 else { return false }
         if size > maxBytes {
-            textView.text = "File too large to preview (\(size) bytes)."
+            textView.text = "文件过大，无法预览（\(size) 字节）"
             return false
         }
 

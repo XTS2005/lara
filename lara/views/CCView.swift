@@ -15,13 +15,13 @@ struct CCView: View {
         NavigationStack {
             List {
                 Section {
-                    Button("do it now") {
+                    Button("立即安装") {
                         patchResult = installRespringCC()
                         mgr.logmsg(patchResult)
                     }
                     .disabled(!mgr.vfsready)
 
-                    Button("Respring") {
+                    Button("注销") {
                         mgr.respring()
                     }
                     .disabled(!mgr.sbxready && !mgr.vfsready && !mgr.dsready)
@@ -34,10 +34,10 @@ struct CCView: View {
                 } header: {
                     Text("RespringCC")
                 } footer: {
-                    Text("Uses lara's respring helper.")
+                    Text("使用 lara 的注销。")
                 }
             }
-            .navigationTitle("Control Center")
+            .navigationTitle("控制中心")
         }
     }
 

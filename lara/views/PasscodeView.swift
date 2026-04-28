@@ -66,11 +66,11 @@ struct PasscodeView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Import Theme")) {
+                Section(header: Text("导入主题")) {
                     Button {
                         showFilePicker = true
                     } label: {
-                        Label("Import .passthm / .zip File", systemImage: "square.and.arrow.down")
+                        Label("导入 .passthm / .zip 文件", systemImage: "square.and.arrow.down")
                     }
                 }
                 
@@ -98,27 +98,27 @@ struct PasscodeView: View {
                     }
                 }
                 
-                Section(header: Text("Apply")) {
-                    Button("Apply Passcode Theme") {
+                Section(header: Text("应用")) {
+                    Button("应用密码主题") {
                         applyTheme()
                     }
                     .disabled(selectedKeys.isEmpty || processing)
                     
                     if !statusMessage.isEmpty {
                         Text(statusMessage)
-                            .foregroundColor(statusMessage.contains("Error") ? .red : .green)
+                            .foregroundColor(statusMessage.contains("错误") ? .red : .green)
                             .font(.footnote)
                     }
                 }
                 
-                Section(header: Text("Danger Zone")) {
-                    Button("Clear All Keys", role: .destructive) {
+                Section(header: Text("危险区域")) {
+                    Button("清除所有按键", role: .destructive) {
                         selectedKeys.removeAll()
                     }
                 }
             }
             .headerProminence(.increased)
-            .navigationTitle("Passcode Theme")
+            .navigationTitle("密码主题")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(item: $showImagePicker) { keyId in
                 ImagePicker(imageData: $selectedKeys[keyId])
@@ -139,13 +139,13 @@ struct PasscodeView: View {
             guard let url = urls.first else { return }
             importPassthmFile(url: url)
         case .failure(let error):
-            statusMessage = "Error: \(error.localizedDescription)"
+            statusMessage = "错误：\(error.localizedDescription)"
         }
     }
     
     func importPassthmFile(url: URL) {
         processing = true
-        statusMessage = "Importing theme..."
+        statusMessage = "正在导入主题..."
         
         DispatchQueue.global(qos: .userInitiated).async {
             let accessing = url.startAccessingSecurityScopedResource()
@@ -175,12 +175,12 @@ struct PasscodeView: View {
                         selectedKeys[keyId] = imageData
                     }
                     processing = false
-                    statusMessage = "Imported \(extractedKeys.count) key(s)"
+                    statusMessage = "已导入 \(extractedKeys.count) 个按键"
                 }
             } catch {
                 DispatchQueue.main.async {
                     processing = false
-                    statusMessage = "Error: \(error.localizedDescription)"
+                    statusMessage = "错误：\(error.localizedDescription)"
                 }
             }
         }
@@ -310,18 +310,18 @@ struct PasscodeView: View {
     
     func applyTheme() {
         guard mgr.sbxready else {
-            statusMessage = "Error: SBX not ready"
+            statusMessage = "错误：SBX 未就绪"
             return
         }
         
         processing = true
-        statusMessage = "Applying theme..."
+        statusMessage = "正在应用主题..."
         
         DispatchQueue.global(qos: .userInitiated).async {
             guard let basePath = resolveTelephonyBasePath() else {
                 DispatchQueue.main.async {
                     processing = false
-                    statusMessage = "Error: TelephonyUI cache not found"
+                    statusMessage = "错误：未找到 TelephonyUI 缓存"
                 }
                 return
             }
@@ -344,9 +344,9 @@ struct PasscodeView: View {
             DispatchQueue.main.async {
                 processing = false
                 if failCount == 0 {
-                    statusMessage = "applied \(successCount) key(s)"
+                    statusMessage = "已应用 \(successCount) 个按键"
                 } else {
-                    statusMessage = "applied \(successCount), failed \(failCount)"
+                    statusMessage = "已应用 \(successCount) 个，失败 \(failCount) 个"
                 }
             }
         }
